@@ -1,0 +1,19 @@
+# Standalone single-file builds, regenerated on demand
+dist/
+
+# Local Claude Code settings, machine specific and not part of the site
+.claude/
+
+# Agent working notes, internal and not part of the site
+CLAUDE.md
+
+# Design handoff bundle, reference only, not part of the site
+design_handoff/
+
+# Editor state
+.vs/
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
