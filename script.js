@@ -95,7 +95,21 @@
        never transformed. The scroll tick does the same thing. */
     var panel = el.querySelector(":scope > .approach");
     var base = el.getBoundingClientRect().top + win.scrollY;
-    return Math.max(0, base + (panel ? panel.offsetTop : 0) - HEAD_CLEAR);
+    var top = base + (panel ? panel.offsetTop : 0);
+
+    /* A panel shorter than the screen gets centred on it rather than parked
+       under the header. Landing every section at the same small offset put
+       the content hard against the header with all the slack underneath: on
+       a 900px screen the services panel sat with 110px over it and 238px
+       going spare below, which reads as top-heavy rather than composed.
+       A panel taller than the screen has no middle to sit in, so it keeps
+       the header clearance and starts at the top as before. */
+    var h = panel ? panel.offsetHeight : 0;
+    var lead = h && h < win.innerHeight
+      ? Math.max(HEAD_CLEAR, (win.innerHeight - h) / 2)
+      : HEAD_CLEAR;
+
+    return Math.max(0, top - lead);
   };
 
   var scrollToAnchor = function (anchor, instant) {
@@ -428,7 +442,7 @@
   }
 
   /* ---- Stepping through the sections ------------------------------------
-     Two flat chevrons at the foot of the screen, one section a press. They
+     A flat chevron at each end of the screen, one section a press. They
      aim where the nav links aim, at the panel rather than at the top of the
      padding above it, so a press lands on the thing and not on the gap. The
      arrow with nowhere left to go is hidden outright rather than dimmed: at

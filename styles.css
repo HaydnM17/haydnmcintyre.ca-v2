@@ -1078,22 +1078,32 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .site-foot .copy { margin: 0; font: 300 14px/1.4 var(--sans); color: var(--mist); }
 
 /* ---- Section arrows -----------------------------------------------------
-   One press a section, at the foot of the screen. Centred rather than in a
-   corner: the hero annotation holds both bottom corners, and the carousel
-   arrows hold both sides, so the middle of the bottom edge is the only place
-   on the page nothing else already wants. Bare chevrons, no disc and no
-   border, so they read as a direction and not as a third kind of button.
-   Sits under the menu scrim, so an open menu covers them. */
+   One press a section. Back sits at the top of the screen and on at the foot,
+   so each one points off the edge it takes you towards. Centred on both:
+   the header keeps its middle clear, the hero annotation holds the two bottom
+   corners, and the carousel arrows hold the sides.
+
+   The container is a full-screen layer that catches nothing, rather than a
+   box around the pair, because the two no longer sit together. Its own
+   padding does the insetting, so neither button needs a transform to place
+   itself and the hover nudge has the transform to itself.
+
+   Bare chevrons, no disc and no border, so they read as a direction and not
+   as a third kind of button. Under the menu scrim, so an open menu covers
+   them. */
 .jump {
-  position: fixed; z-index: 25;
-  left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
+  position: fixed; inset: 0; z-index: 25;
+  pointer-events: none;
   display: flex; flex-direction: column; align-items: center;
-  gap: 2px;
+  padding: calc(var(--head-h) + 12px) 0 calc(24px + env(safe-area-inset-bottom, 0px));
 }
+/* Pushed to the foot whether or not the up arrow is there to share the
+   column. space-between would send it to the top the moment it was alone. */
+.jump-down { margin-top: auto; }
 .jump-btn {
+  pointer-events: auto;
   display: grid; place-items: center;
-  width: 46px; height: 24px;
+  width: 64px; height: 38px;
   padding: 0;
   background: none; border: 0;
   color: var(--moss);
@@ -1108,7 +1118,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
    did the same job and showed up as a grey smudge on every light thing it
    crossed; a rim this tight is invisible against the dark ground. */
 .jump-btn svg {
-  display: block; width: 28px; height: auto;
+  display: block; width: 42px; height: auto;
   filter: drop-shadow(0 0 2px rgba(10, 16, 14, 0.95))
           drop-shadow(0 1px 5px rgba(10, 16, 14, 0.7));
 }
