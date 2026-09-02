@@ -73,7 +73,24 @@
     <a class="nav-services" href="/#services" data-go="home:services" data-sec="services">Services</a>
     <a class="btn btn-brass btn-sm" href="/#contact" data-go="home:contact" data-sec="contact">Contact<span class="sheen" aria-hidden="true"></span></a>
   </nav>
+  <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
+    <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span class="sr">Menu</span>
+  </button>
 </header>
+
+<div class="nav-scrim" id="nav-scrim" hidden></div>
+<nav class="mobile-nav" id="mobile-nav" aria-label="Main (mobile)" hidden>
+  <a href="/" data-go="home">Home</a>
+  <a href="/#about" data-go="home:about">About</a>
+  <a href="/portfolio" data-go="portfolio">Portfolio</a>
+  <a class="sub" href="/portfolio#websites" data-go="portfolio:websites">Websites</a>
+  <a class="sub" href="/portfolio#web-app" data-go="portfolio:web-app">Web application</a>
+  <a class="sub" href="/portfolio#mobile" data-go="portfolio:mobile">Mobile app</a>
+  <a class="sub" href="/portfolio#skills" data-go="portfolio:skills">Technical skills</a>
+  <a href="/#services" data-go="home:services">Services</a>
+  <a class="btn btn-brass" href="/#contact" data-go="home:contact">Contact<span class="sheen" aria-hidden="true"></span></a>
+</nav>
 
 <div class="content" id="content" tabindex="-1">
 

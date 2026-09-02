@@ -99,6 +99,7 @@
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var parts = a.getAttribute("data-go").split(":");
     e.preventDefault();
+    setMenu(false);
     go(parts[0], parts[1] || "");
   });
 
@@ -110,6 +111,53 @@
   });
 
   show(pageFromLocation());
+
+  /* ---- The menu on a narrow screen --------------------------------------
+     A panel from the right, holding everything the wide nav can reach. It
+     closes on a link, on the scrim, on Escape, and if the window grows wide
+     enough for the real nav to come back. */
+  var menuBtn = doc.getElementById("menu-toggle");
+  var menuPanel = doc.getElementById("mobile-nav");
+  var menuScrim = doc.getElementById("nav-scrim");
+  var setMenu = function (open) {
+    if (!menuBtn || !menuPanel || !menuScrim) return;
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    doc.body.classList.toggle("is-locked", open);
+    if (open) {
+      menuPanel.hidden = false;
+      menuScrim.hidden = false;
+      /* A frame between unhiding and the class, or the transition has no
+         start state to move from and the panel simply appears. */
+      win.requestAnimationFrame(function () {
+        menuPanel.classList.add("is-open");
+        menuScrim.classList.add("is-open");
+      });
+    } else {
+      menuPanel.classList.remove("is-open");
+      menuScrim.classList.remove("is-open");
+      win.setTimeout(function () {
+        if (menuBtn.getAttribute("aria-expanded") === "false") {
+          menuPanel.hidden = true;
+          menuScrim.hidden = true;
+        }
+      }, 360);
+    }
+  };
+  if (menuBtn && menuPanel && menuScrim) {
+    menuBtn.addEventListener("click", function () {
+      setMenu(menuBtn.getAttribute("aria-expanded") !== "true");
+    });
+    menuScrim.addEventListener("click", function () { setMenu(false); });
+    doc.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && menuBtn.getAttribute("aria-expanded") === "true") {
+        setMenu(false);
+        menuBtn.focus();
+      }
+    });
+    win.addEventListener("resize", function () {
+      if (win.innerWidth > 900) setMenu(false);
+    }, { passive: true });
+  }
 
   /* ---- Nav highlighting -------------------------------------------------
      The link for wherever you are. On the portfolio page that is Portfolio

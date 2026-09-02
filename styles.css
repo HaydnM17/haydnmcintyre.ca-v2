@@ -182,7 +182,7 @@ html[data-page="portfolio"] .mark-fallback { display: none; }
 
 /* ---- Header ----------------------------------------------------------- */
 .site-head {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 30;
   display: flex; align-items: center; justify-content: space-between;
   height: var(--head-h);
   padding: 0 44px;
@@ -254,6 +254,88 @@ html[data-page="portfolio"] .mark-fallback { display: none; }
   transition: background 0.2s, color 0.2s;
 }
 .drop-panel a:hover, .drop-panel a:focus-visible { background: var(--raised); color: var(--brass); }
+
+/* ---- The menu on a narrow screen --------------------------------------
+   Below 900px the row of links will not fit, so it becomes a panel that
+   comes in from the right. Everything the wide nav can reach is in it,
+   including the four portfolio sections that live in the hover dropdown. */
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+.menu-toggle {
+  display: none;
+  width: 44px; height: 44px;
+  align-items: center; justify-content: center;
+  padding: 0;
+  background: linear-gradient(135deg, rgba(236, 241, 236, 0.08), rgba(10, 16, 14, 0.5) 50%, rgba(63, 217, 192, 0.06));
+  border: 1px solid var(--line-int);
+  border-radius: 8px;
+  color: var(--chalk);
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.menu-toggle:hover, .menu-toggle:focus-visible {
+  border-color: rgba(229, 180, 87, 0.75);
+  box-shadow: 0 0 22px rgba(229, 180, 87, 0.18);
+}
+.menu-bars { display: grid; gap: 5px; width: 18px; }
+.menu-bars span {
+  display: block; height: 2px; border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.3s var(--ease-out), opacity 0.2s linear;
+}
+/* Open, the three bars become a cross. */
+[aria-expanded="true"] .menu-bars span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+[aria-expanded="true"] .menu-bars span:nth-child(2) { opacity: 0; }
+[aria-expanded="true"] .menu-bars span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.nav-scrim {
+  position: fixed; inset: 0; z-index: 27;
+  background: rgba(10, 16, 14, 0.6);
+  opacity: 0;
+  transition: opacity 0.3s linear;
+}
+.nav-scrim.is-open { opacity: 1; }
+
+.mobile-nav {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 28;
+  width: min(320px, 84vw);
+  display: grid; align-content: start; gap: 2px;
+  padding: calc(var(--head-h) + 16px) 20px 28px;
+  overflow-y: auto;
+  background: rgba(15, 24, 21, 0.97);
+  border-left: 1px solid var(--line-2);
+  box-shadow: -30px 0 80px rgba(0, 0, 0, 0.5);
+  transform: translateX(100%);
+  transition: transform 0.36s var(--ease-out);
+}
+.mobile-nav.is-open { transform: none; }
+.mobile-nav a:not(.btn) {
+  padding: 13px 12px;
+  border-radius: 8px;
+  color: var(--mist);
+  font: 400 16px/1.2 var(--sans);
+  transition: background 0.2s, color 0.2s;
+}
+.mobile-nav a:not(.btn):hover, .mobile-nav a:not(.btn):focus-visible {
+  background: var(--raised); color: var(--brass);
+}
+.mobile-nav a.sub {
+  padding-left: 26px;
+  font-size: 14px;
+  color: var(--moss);
+}
+.mobile-nav .btn { margin-top: 14px; justify-self: start; }
+
+@media (max-width: 900px) {
+  .nav { display: none; }
+  .menu-toggle { display: flex; }
+}
+/* Open, the page behind does not scroll away underneath the panel. */
+body.is-locked { overflow: hidden; }
 
 /* ---- Buttons ---------------------------------------------------------- */
 .btn {
@@ -900,7 +982,6 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 @media (max-width: 900px) {
   :root { --gutter: 24px; --H: min(280px, 34vw); }
   .site-head { padding: 0 24px; }
-  .nav { gap: 18px; }
   .sec, main[data-page="portfolio"] .sec { padding-top: 120px; }
   .h2, .pf-intro .h1 { font-size: clamp(48px, 11vw, 88px); }
   .h3 { font-size: 32px; }
@@ -916,11 +997,9 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
   .drop-wrap { display: none; }
 }
 @media (max-width: 720px) {
-  .nav-home { display: none; }
   .hero-lede { flex-wrap: wrap; justify-content: center; gap: 8px 14px; }
 }
 @media (max-width: 560px) {
-  .nav-about, .nav-services { display: none; }
   .hero-ann { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
   .carousel-wk { --cell: 62%; }
 }
