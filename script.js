@@ -335,6 +335,42 @@
     win.addEventListener("load", function () { scrollToAnchor(location.hash.slice(1), true); });
   }
 
+  /* ---- Lightbox ---------------------------------------------------------
+     A capture at full size over the page. Returns focus to whatever opened
+     it, which for a carousel is the capture you clicked. */
+  var lightbox = (function () {
+    var dialog = doc.getElementById("lightbox");
+    var big = doc.getElementById("lightbox-img");
+    var close = doc.getElementById("lightbox-close");
+    if (!dialog || !big || !close || typeof dialog.showModal !== "function") {
+      return { open: function () {} };
+    }
+    var opener = null;
+
+    var shut = function () { if (dialog.open) dialog.close(); };
+    close.addEventListener("click", shut);
+    /* a click that lands on the dialog itself is a click on the backdrop */
+    dialog.addEventListener("click", function (e) { if (e.target === dialog) shut(); });
+    dialog.addEventListener("close", function () {
+      doc.body.classList.remove("is-locked");
+      big.removeAttribute("src");
+      big.alt = "";
+      if (opener) { opener.focus(); opener = null; }
+    });
+
+    return {
+      open: function (img, from) {
+        if (!img) return;
+        opener = from || null;
+        big.src = img.currentSrc || img.src;
+        big.alt = img.alt || "";
+        dialog.showModal();
+        doc.body.classList.add("is-locked");
+        close.focus();
+      }
+    };
+  })();
+
   /* ---- Screenshot carousels ---------------------------------------------
      A slow endless drift. One capture holds the middle at full size; the rest
      sit further back, smaller and dimmer, and slide forward into focus as the
@@ -368,6 +404,7 @@
       originals.forEach(function (cell) {
         var copy = cell.cloneNode(true);
         copy.setAttribute("aria-hidden", "true");
+        copy.setAttribute("tabindex", "-1");
         copy.classList.add("is-clone");
         track.appendChild(copy);
       });
@@ -499,6 +536,31 @@
     view.addEventListener("keydown", function (e) {
       if (e.key === "ArrowLeft") { step(-1); e.preventDefault(); }
       if (e.key === "ArrowRight") { step(1); e.preventDefault(); }
+    });
+
+    /* Clicking a capture brings it to the middle and opens it full size, so a
+       dim one at the edge is a target rather than something you have to walk
+       the arrows to. The last image in a cell is the page itself; the first,
+       where there are two, is the application header above it. */
+    var centreOn = function (cell) {
+      hold("step", true);
+      view.scrollTo({
+        left: cell.offsetLeft + cell.offsetWidth / 2 - view.clientWidth / 2,
+        behavior: motionQuery.matches ? "auto" : "smooth"
+      });
+      win.clearTimeout(stepTimer);
+      stepTimer = win.setTimeout(function () {
+        pos = null;
+        wrap();
+        hold("step", false);
+      }, 700);
+    };
+    track.addEventListener("click", function (e) {
+      var cell = e.target.closest && e.target.closest(".car-cell");
+      if (!cell) return;
+      centreOn(cell);
+      var imgs = cell.querySelectorAll("img");
+      lightbox.open(imgs[imgs.length - 1], cell);
     });
 
     view.addEventListener("scroll", paint, { passive: true });

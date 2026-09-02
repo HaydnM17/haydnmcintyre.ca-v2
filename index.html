@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300..500&display=swap">
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=5">
 <script>document.documentElement.className += " js";document.documentElement.setAttribute("data-page", /^\/portfolio\/?$/.test(location.pathname) || /[?&]p=portfolio\b/.test(location.search) ? "portfolio" : "home");</script>
 </head>
 <body>
@@ -253,7 +253,7 @@
     <div class="approach services-grid" data-approach>
       <header>
         <p class="kicker">Services</p>
-        <h2 class="h2">What I build</h2>
+        <h2 class="h2">What I can build for you</h2>
       </header>
       <article class="service">
         <span class="num">01</span>
@@ -340,9 +340,9 @@
         <div>
           <p class="kicker">Website</p>
           <h3 class="h3">v1.haydnmcintyre.ca</h3>
-          <p class="blurb">No frameworks, no page builder, no template. An animated particle field in the hero that reacts to the cursor, a scroll progress bar, live section tracking, and a lightbox on every screenshot. Made to work on a phone first and to stay quick.</p>
+          <p class="blurb">The previous version of this site, which I designed and built for myself before the current one. Plain HTML, CSS and JavaScript with no framework, page builder or template behind it. Responsive from a phone upward, with an animated particle field in the hero that reacts to the cursor, a scroll progress bar, section tracking that follows you down the page, and a lightbox on every screenshot. The contact form posts to a serverless endpoint that mails the message straight through, and falls back to opening the visitor's own mail app if that is ever unreachable. I set up the hosting, the domain and the certificate alongside it.</p>
           <ul class="chips">
-            <li>HTML</li><li>CSS</li><li>JavaScript</li><li>Canvas</li><li>Cloudflare Pages</li>
+            <li>HTML</li><li>CSS</li><li>JavaScript</li><li>Canvas</li><li>Serverless functions</li><li>Cloudflare Pages</li>
           </ul>
           <div class="btn-row">
             <a class="btn btn-gold" href="https://v1.haydnmcintyre.ca" target="_blank" rel="noopener">
@@ -420,15 +420,15 @@
         <div class="carousel carousel-mu" data-strip>
           <div class="car-view" tabindex="0" role="group" aria-label="Movement Unlimited screenshots, scrolls sideways">
           <div class="car-track">
-            <div class="car-cell"><img src="assets/work/head-mu-dashboard.jpg" alt=""><img src="assets/work/reel-mu-dashboard.jpg" alt="Movement Unlimited dashboard showing upcoming sessions."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-sessions.jpg" alt=""><img src="assets/work/reel-mu-sessions.jpg" alt="Sessions list with export and bulk upload."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-session-detail.jpg" alt=""><img src="assets/work/reel-mu-session-detail.jpg" alt="Admin Setup Review, showing the session details and its workflow stage."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-session-create.jpg" alt=""><img src="assets/work/reel-mu-session-create.jpg" alt="Admin Setup, scheduling a session and assigning the client and teacher."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-session-edit.jpg" alt=""><img src="assets/work/reel-mu-session-edit.jpg" alt="Trainer Log, recording exercises, notes and next steps after an appointment."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-clients.jpg" alt=""><img src="assets/work/reel-mu-clients.jpg" alt="The client list with quick actions."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-client-detail.jpg" alt=""><img src="assets/work/reel-mu-client-detail.jpg" alt="A client record with their session history."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-accounts.jpg" alt=""><img src="assets/work/reel-mu-accounts.jpg" alt="Managing staff accounts and roles."></div>
-            <div class="car-cell"><img src="assets/work/head-mu-reports.jpg" alt=""><img src="assets/work/reel-mu-reports.jpg" alt="Reports with session statistics over a date range."></div>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-dashboard.jpg" alt=""><img src="assets/work/reel-mu-dashboard.jpg" alt="Movement Unlimited dashboard showing upcoming sessions."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-sessions.jpg" alt=""><img src="assets/work/reel-mu-sessions.jpg" alt="Sessions list with export and bulk upload."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-session-detail.jpg" alt=""><img src="assets/work/reel-mu-session-detail.jpg" alt="Admin Setup Review, showing the session details and its workflow stage."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-session-create.jpg" alt=""><img src="assets/work/reel-mu-session-create.jpg" alt="Admin Setup, scheduling a session and assigning the client and teacher."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-session-edit.jpg" alt=""><img src="assets/work/reel-mu-session-edit.jpg" alt="Trainer Log, recording exercises, notes and next steps after an appointment."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-clients.jpg" alt=""><img src="assets/work/reel-mu-clients.jpg" alt="The client list with quick actions."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-client-detail.jpg" alt=""><img src="assets/work/reel-mu-client-detail.jpg" alt="A client record with their session history."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-accounts.jpg" alt=""><img src="assets/work/reel-mu-accounts.jpg" alt="Managing staff accounts and roles."></button>
+            <button class="car-cell" type="button"><img src="assets/work/head-mu-reports.jpg" alt=""><img src="assets/work/reel-mu-reports.jpg" alt="Reports with session statistics over a date range."></button>
           </div>
           </div>
           <button class="car-btn car-prev" type="button" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><use href="#i-chev-l"/></svg></button>
@@ -459,18 +459,18 @@
         <div class="carousel carousel-wk" data-strip>
           <div class="car-view" tabindex="0" role="group" aria-label="Workout Tracker screenshots, scrolls sideways">
           <div class="car-track">
-            <div class="car-cell"><img src="assets/work/wk-01-home.jpg" alt="Workout Tracker home screen."></div>
-            <div class="car-cell"><img src="assets/work/wk-02-templates.jpg" alt="Saved workout templates."></div>
-            <div class="car-cell"><img src="assets/work/wk-03-start.jpg" alt="Starting a session from a template."></div>
-            <div class="car-cell"><img src="assets/work/wk-04-live.jpg" alt="A live session with its sets still to do."></div>
-            <div class="car-cell"><img src="assets/work/wk-05-set1.jpg" alt="The first set logged."></div>
-            <div class="car-cell"><img src="assets/work/wk-06-set2.jpg" alt="The second set logged."></div>
-            <div class="car-cell"><img src="assets/work/wk-07-set3.jpg" alt="The third set logged."></div>
-            <div class="car-cell"><img src="assets/work/wk-08-set4.jpg" alt="Every set in the exercise ticked off."></div>
-            <div class="car-cell"><img src="assets/work/wk-09-complete.jpg" alt="The session summary after finishing."></div>
-            <div class="car-cell"><img src="assets/work/wk-10-history.jpg" alt="Workout history."></div>
-            <div class="car-cell"><img src="assets/work/wk-11-stats.jpg" alt="Statistics built up over time."></div>
-            <div class="car-cell"><img src="assets/work/wk-12-calendar.jpg" alt="The workout calendar."></div>
+            <button class="car-cell" type="button"><img src="assets/work/wk-01-home.jpg" alt="Workout Tracker home screen."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-02-templates.jpg" alt="Saved workout templates."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-03-start.jpg" alt="Starting a session from a template."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-04-live.jpg" alt="A live session with its sets still to do."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-05-set1.jpg" alt="The first set logged."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-06-set2.jpg" alt="The second set logged."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-07-set3.jpg" alt="The third set logged."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-08-set4.jpg" alt="Every set in the exercise ticked off."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-09-complete.jpg" alt="The session summary after finishing."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-10-history.jpg" alt="Workout history."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-11-stats.jpg" alt="Statistics built up over time."></button>
+            <button class="car-cell" type="button"><img src="assets/work/wk-12-calendar.jpg" alt="The workout calendar."></button>
           </div>
           </div>
           <button class="car-btn car-prev" type="button" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><use href="#i-chev-l"/></svg></button>
@@ -528,9 +528,16 @@
 
 </div>
 
+<dialog class="lightbox" id="lightbox" aria-label="Screenshot">
+  <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+  <img id="lightbox-img" alt="">
+</dialog>
+
 <div class="grain" aria-hidden="true"></div>
 
-<script src="space-scene.js?v=4" defer></script>
-<script src="script.js?v=4" defer></script>
+<script src="space-scene.js?v=5" defer></script>
+<script src="script.js?v=5" defer></script>
 </body>
 </html>
