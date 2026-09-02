@@ -5,7 +5,7 @@
    through: same geometry, same brass, passed at a distance rather than through.
    Attributes: scroll (px) · gate (px of scroll at which the camera passes through the mark)
                stars (count) · glow (0–2) · waves (0–2 amplitude) · speed (sway, rad/s)
-               aside (0–1 of the side mark: full beside the opening screen, out once past it) */
+               aside (1–0 of the side mark, run down as the copy beside it scrolls away) */
 (function () {
   if (window.customElements.get('space-scene')) return;
   var THREE_SRC = './vendor/three.module.min.js';
@@ -19,10 +19,12 @@
   var LIFT = 9;                // the mark rides high in frame so the copy sits below it
   var SPAN = 620;              // depth of the star tube that wraps around the camera
   var A_D = 130;               // how far ahead of the camera the side mark hangs at full strength
-  var A_PASS = 55;             // how much of that it closes as you scroll past it
-  var A_W = 0.17, A_H = 0.22;  // its size, as a share of the frame (width, and a cap on height)
-  var A_X = 0.56, A_Y = 0.2;   // where it sits, as a share of the half frame, right of and above centre
-  var A_MIN = 760;             // below this viewport width there is no room beside the text
+  var A_PASS = 18;             // how much of that it closes on the way out
+  var A_W = 0.21, A_H = 0.26;  // its size, as a share of the frame (width, and a cap on height)
+  var A_X = 0.42, A_Y = 0.2;   // where it sits, as a share of the half frame, right of and above centre
+  var A_RISE = 1;              // half frames it climbs on the way out: enough to clear the top
+  var A_CLEAR = 718;           // px the copy beside it runs to, plus air: the mark stays clear of that
+  var A_MIN = 860;             // narrower than this there is nothing left of the frame worth putting it in
   var BRASS = 0xE5B457, BRASS_DIM = 0xB98C33, ELECTRIC = 0x3FD9C0, GROUND = 0x0A100E;
   var PALETTE = [[0.93,0.95,0.93],[0.93,0.95,0.93],[0.93,0.95,0.93],[0.25,0.85,0.75],[0.9,0.71,0.34],[0.2,0.6,0.47]];
 
@@ -122,11 +124,16 @@
         var tan = Math.tan(camera.fov * Math.PI / 360);
         var dW = (W / 0.56) / (2 * tan * camera.aspect), dH = (HGT / 0.4) / (2 * tan);
         self._d0 = Math.max(dW, dH);
-        // The side mark is measured off the frame too, so it keeps the same
-        // corner and the same share of the screen at any size.
+        // The side mark is measured off the frame too, so it keeps its share of
+        // the screen at any size. The copy beside it runs to a fixed width
+        // rather than a share of one, so on a narrow window the mark takes what
+        // is left of the frame and sits hard against that copy instead of over it.
         var aH = A_D * tan, aW = aH * camera.aspect;
+        var clear = A_CLEAR / w, share = Math.min(A_W, 0.95 - clear);
         self._aHalfW = aW; self._aHalfH = aH;
-        self._aScale = Math.min((A_W * 2 * aW) / W, (A_H * 2 * aH) / HGT);
+        self._aScale = Math.min((share * 2 * aW) / W, (A_H * 2 * aH) / HGT);
+        var half = (self._aScale * W) / (4 * aW);          // its half width, as a share of the frame
+        self._aXf = (Math.max(0.5 + A_X / 2 - half, clear) + half - 0.5) * 2;
         self._aRoom = w >= A_MIN;
         camera.updateProjectionMatrix();
       };
@@ -228,10 +235,13 @@
 
       // The side mark hangs beside the opening screen of a page with no hero,
       // turning the way the big one does, only smaller and lazier. The page
-      // hands it a strength that runs out as you scroll in: it draws closer as
-      // it goes, so it drifts wide of the frame and fades rather than sitting
-      // over the work. Perspective does the sliding; only the distance moves.
-      var aside = this._aside, ak = smooth(num(this, 'aside', 0));
+      // hands it a strength that runs down as the copy beside it scrolls away,
+      // and it climbs by as much as the page has scrolled, so it leaves the
+      // top of the frame with that copy rather than hanging on over the work.
+      // The rise tracks the raw strength, so it keeps pace with the scroll;
+      // only the fade is eased, and it waits until the mark is well on its way.
+      var aside = this._aside, ar = Math.max(0, Math.min(1, num(this, 'aside', 0)));
+      var ak = smooth(Math.min(1, ar / 0.5));
       if (aside) {
         aside.visible = ak > 0.004 && this._aRoom;
         if (aside.visible) {
@@ -241,7 +251,7 @@
           this._aGlowMat.opacity = 0.5 * gk * ak;
           this._aPhi = (this._aPhi || 0) + dt * sway * 0.11;
           aside.scale.setScalar(this._aScale);
-          aside.position.set(GAP_X + this._aHalfW * A_X, this._aHalfH * (A_Y + 0.045 * Math.sin(t * 0.55)), camZ - A_D + (1 - ak) * A_PASS);
+          aside.position.set(GAP_X + this._aHalfW * this._aXf, this._aHalfH * (A_Y + (1 - ar) * A_RISE + 0.045 * Math.sin(t * 0.55)), camZ - A_D + (1 - ar) * A_PASS);
           aside.rotation.y = turnOf(this._aPhi);
           aside.rotation.x = 0.16 + 0.12 * Math.sin(t * sway * 0.7);
           aside.rotation.z = 0.1 * Math.sin(t * sway * 0.45 + 1.2);

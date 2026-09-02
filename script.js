@@ -309,9 +309,10 @@
     litNow = best;
   };
 
-  /* How much of the scene's small side mark is showing. It belongs to the page
-     with no hero, and runs out over the first screen and a bit of it. Written
-     on the change only, so a still page is not rewriting an attribute. */
+  /* How much of the scene's small side mark is left. It belongs to the page
+     with no hero, and runs down over the first half screen: the scene climbs it
+     by the same amount, so it leaves with the copy it is standing beside.
+     Written on the change only, so a still page is not rewriting an attribute. */
   var asideAt = null;
 
   var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
@@ -328,11 +329,11 @@
 
     /* Without a hero (the portfolio) the camera starts already past the mark,
        so that page gets the smaller one off to the side of its opening screen
-       instead, spent by the time the first project arrives. */
+       instead, gone with that screen. */
     if (scene) {
       scene.setAttribute("gate", String(gate));
       scene.setAttribute("scroll", String(onHome ? y : y + gate * 1.6));
-      var a = onHome ? 0 : clamp(1 - (y / vh - 0.5) / 0.8);
+      var a = onHome ? 0 : clamp(1 - (y / vh) / 0.5);
       if (a !== asideAt) {
         asideAt = a;
         scene.setAttribute("aside", a.toFixed(3));
