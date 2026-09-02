@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300..500&display=swap">
-<link rel="stylesheet" href="styles.css?v=15">
+<link rel="stylesheet" href="styles.css?v=17">
 <link rel="modulepreload" href="vendor/three.module.min.js">
 <link rel="modulepreload" href="vendor/three.core.min.js">
 <script>document.documentElement.className += " js booting";document.documentElement.setAttribute("data-page", /^\/portfolio\/?$/.test(location.pathname) || /[?&]p=portfolio\b/.test(location.search) ? "portfolio" : "home");</script>
@@ -40,6 +40,9 @@
   </symbol>
   <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <!-- The section jump head: wide, shallow, two strokes and no shaft, so it
+       reads as a direction rather than as another button. -->
+  <symbol id="i-chev-flat" viewBox="0 0 30 9"><path d="M1.4 1.4 15 7.6 28.6 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <a class="skip" href="#content">Skip to content</a>
@@ -528,6 +531,17 @@
 
 </div>
 
+<!-- Step through the sections of whichever page is showing. The script hides
+     whichever of the two has nowhere left to go, so neither end shows one. -->
+<div class="jump">
+  <button class="jump-btn jump-up" id="jump-up" type="button" aria-label="Previous section" hidden>
+    <svg viewBox="0 0 30 9" aria-hidden="true" focusable="false"><use href="#i-chev-flat"/></svg>
+  </button>
+  <button class="jump-btn jump-down" id="jump-down" type="button" aria-label="Next section" hidden>
+    <svg viewBox="0 0 30 9" aria-hidden="true" focusable="false"><use href="#i-chev-flat"/></svg>
+  </button>
+</div>
+
 <dialog class="lightbox" id="lightbox" aria-label="Screenshot">
   <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close">
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -538,7 +552,7 @@
 <div class="boot" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<script src="space-scene.js?v=15" defer></script>
-<script src="script.js?v=15" defer></script>
+<script src="space-scene.js?v=17" defer></script>
+<script src="script.js?v=17" defer></script>
 </body>
 </html>

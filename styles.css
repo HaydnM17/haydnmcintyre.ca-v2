@@ -936,13 +936,15 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 /* Screenshot carousel. One capture holds the middle at full size, its
    neighbours sit either side faded and a touch smaller, the rest wait out of
    sight. The script positions every cell from its distance to the active one. */
-.carousel { position: relative; --cell: 58cqi; --ratio: 3 / 2; --car-bg: #F4F5F7; }
-.carousel-wk { --cell: 27cqi; --ratio: 540 / 1200; --car-bg: #000; }
+/* Cell width is a plain length, not a container query unit. It was 58cqi, and
+   where cqi does not resolve the whole declaration is invalid: the cell falls
+   back to the natural width of the capture inside it, 1416px for Movement
+   Unlimited, and the centring padding collapses to nothing. That is what put
+   the entire line of pictures across the page, oversized and flush left. */
+.carousel { position: relative; --cw: min(430px, 33vw); --ratio: 3 / 2; --car-bg: #F4F5F7; }
+.carousel-wk { --cw: min(200px, 15vw); --ratio: 540 / 1200; --car-bg: #000; }
 
 .car-view {
-  /* The cell width is a share of this box, so the strip keeps its proportions
-     whatever column it ends up in. */
-  container-type: inline-size;
   overflow-x: auto;
   /* No snap: the strip drifts continuously, and a snap would keep hauling it
      back to the nearest cell mid-drift. */
@@ -963,11 +965,12 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 
 .car-track {
   display: flex; gap: 16px;
-  /* lets the first and last capture reach the centre */
-  padding-inline: calc((100cqi - var(--cell)) / 2);
+  /* Lets the first and last capture reach the centre. A percentage here
+     resolves against the view's own width, so it needs nothing exotic. */
+  padding-inline: calc(50% - var(--cw) / 2);
 }
 .car-cell {
-  flex: 0 0 var(--cell);
+  flex: 0 0 var(--cw);
   padding: 0; margin: 0;
   font: inherit; color: inherit; text-align: left;
   cursor: zoom-in;
@@ -1091,8 +1094,8 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 56px; }
   .showcase { height: auto; align-items: stretch; }
   .showcase { gap: 16px; }
-  .carousel { --cell: 70cqi; }
-  .carousel-wk { --cell: 34cqi; }
+  .carousel { --cw: min(560px, 62vw); }
+  .carousel-wk { --cw: min(260px, 30vw); }
 }
 @media (max-width: 900px) {
   :root { --gutter: 24px; --H: min(280px, 45vw); }
@@ -1110,8 +1113,8 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .hero-ann { left: 24px; right: 24px; bottom: 24px; }
   .site-foot { margin: 120px var(--gutter) 0; flex-wrap: wrap; }
   .form { padding: 24px; }
-  .carousel { --cell: 80cqi; }
-  .carousel-wk { --cell: 44cqi; }
+  .carousel { --cw: 72vw; }
+  .carousel-wk { --cw: 38vw; }
   .car-view { --edge: 1.25rem; }
   .drop-wrap { display: none; }
 }
@@ -1120,6 +1123,6 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 }
 @media (max-width: 560px) {
   .hero-ann { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
-  .carousel { --cell: 88cqi; }
-  .carousel-wk { --cell: 60cqi; }
+  .carousel { --cw: 82vw; }
+  .carousel-wk { --cw: 52vw; }
 }
