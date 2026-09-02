@@ -14,7 +14,8 @@
   /* Reduced motion pins every panel in place and skips the camera ride.
      ?still does the same on demand, so a headless capture can show every
      section rather than the eight percent specks they are before they land. */
-  var still = motionQuery.matches || /[?&]still\b/.test(location.search);
+  var capture = /[?&]still\b/.test(location.search);
+  var still = motionQuery.matches || capture;
   var isFile = location.protocol === "file:";
 
   /* ---- Email, assembled at runtime so it is not sitting in the markup ---- */
@@ -340,6 +341,226 @@
     paint();
     sync();
   });
+
+  /* ---- Animated previews ------------------------------------------------
+     Each [data-reel] frame holds .reel-slide units. A slide is one page of
+     the thing being shown: an optional .reel-head that stays pinned the way a
+     real sticky header does, and a .reel-page that scrolls underneath it.
+
+     Every slide runs on the same beat regardless of how tall its page is, so
+     a desktop frame and the phone frame beside it stay in step while they
+     browse the same site. The cursor moves to a real target named by the
+     slide's data-click, clicks it, and only then does the next slide come up,
+     so the cut reads as the click that caused it. Frames with no cursor wait
+     out the same interval rather than running ahead.
+
+     A frame only runs while it is on screen, on the page you are looking at,
+     and in a foreground tab. Under reduced motion it still moves between
+     slides, but it crossfades: no scrolling, no cursor. */
+  (function () {
+    var frames = Array.prototype.slice.call(doc.querySelectorAll("[data-reel]"));
+    if (!frames.length || capture) return;
+    if (!("IntersectionObserver" in win)) return;
+
+    /* One slide: settle, scroll the page, rest, then point and click. A page
+       with nothing to scroll skips only the scroll. */
+    var HOLD_TOP = 450;
+    var SCROLL_MS = 12000;
+    var HOLD_END = 1700;
+    /* A page has to overflow its frame by a real amount to be worth
+       scrolling. Below this it is held still, so a capture that only spills a
+       few pixels does not crawl for twelve seconds. */
+    var SCROLL_MIN = 0.25;
+    var CURSOR_MOVE = 1000;
+    var CLICK_HOLD = 620;
+    var REDUCED_HOLD = 5000;
+
+    function Reel(frame) {
+      this.frame = frame;
+      this.screen = frame.querySelector(".screen");
+      this.slides = Array.prototype.slice.call(frame.querySelectorAll(".reel-slide"));
+      this.cursor = frame.querySelector(".reel-cursor");
+      this.owner = frame.closest("main[data-page]");
+      this.index = 0;
+      this.timer = 0;
+      this.running = false;
+    }
+
+    Reel.prototype.wait = function (ms, next) {
+      var self = this;
+      this.timer = win.setTimeout(function () {
+        if (self.running) next();
+      }, ms);
+    };
+
+    /* How far this slide's page can travel before its bottom edge is reached.
+       The pinned header takes its height out of the space the page gets. */
+    Reel.prototype.overflow = function (slide) {
+      var page = slide.querySelector(".reel-page");
+      var head = slide.querySelector(".reel-head");
+      if (!page) return 0;
+      var room = this.screen.clientHeight - (head ? head.offsetHeight : 0);
+      /* Nothing has laid out yet: the page this frame lives on is not showing,
+         or the captures have not sized. Measuring now reads the image at its
+         natural height and would scroll it thousands of pixels. */
+      if (room <= 0) return 0;
+      return Math.max(0, page.offsetHeight - room);
+    };
+
+    /* The slide names its click target as percentages of whichever element
+       the target lives in: the pinned header if there is one, otherwise the
+       screen. That keeps the cursor on the actual link at any frame size. */
+    Reel.prototype.target = function (slide) {
+      var spec = (slide.getAttribute("data-click") || "").split(",");
+      if (spec.length !== 2) return null;
+      var ref = slide.querySelector(".reel-head") || this.screen;
+      var refBox = ref.getBoundingClientRect();
+      var frameBox = this.frame.getBoundingClientRect();
+      if (!refBox.width) return null;
+      return {
+        x: refBox.left - frameBox.left + (refBox.width * parseFloat(spec[0])) / 100,
+        y: refBox.top - frameBox.top + (refBox.height * parseFloat(spec[1])) / 100
+      };
+    };
+
+    Reel.prototype.click = function (slide, next) {
+      var self = this;
+      var spot = this.cursor && this.target(slide);
+      /* No cursor, or nowhere honest to point: wait out the same beat so a
+         paired frame does not run ahead. */
+      if (!spot) return this.wait(CURSOR_MOVE + CLICK_HOLD, next);
+
+      this.cursor.style.transition =
+        "transform " + CURSOR_MOVE + "ms var(--ease-out), opacity 0.3s linear";
+      this.cursor.style.transform = "translate(" + spot.x.toFixed(1) + "px," + spot.y.toFixed(1) + "px)";
+      this.cursor.classList.add("is-on");
+      this.wait(CURSOR_MOVE, function () {
+        self.cursor.classList.remove("is-click");
+        void self.cursor.offsetWidth; /* restart the ring on every click */
+        self.cursor.classList.add("is-click");
+        self.wait(CLICK_HOLD, next);
+      });
+    };
+
+    /* The scroll is a CSS transition rather than a per-frame loop: it runs on
+       the compositor and costs no JavaScript while it plays. Every slide
+       takes the same time whatever its height, which is what keeps two frames
+       showing the same site in step. */
+    Reel.prototype.scroll = function (slide, distance, next) {
+      var page = slide.querySelector(".reel-page");
+      page.style.transition = "transform " + SCROLL_MS + "ms cubic-bezier(0.4, 0, 0.35, 1)";
+      page.style.transform = "translateY(" + -distance + "px)";
+      this.wait(SCROLL_MS + 80, next);
+    };
+
+    Reel.prototype.play = function () {
+      var self = this;
+      var slide = this.slides[this.index];
+      var page = slide.querySelector(".reel-page");
+      var distance = this.overflow(slide);
+
+      if (page) {
+        page.style.transition = "none";
+        page.style.transform = "translateY(0)";
+        void page.offsetWidth; /* commit the snap before a new transition is set */
+        page.style.transition = "";
+      }
+      this.slides.forEach(function (s) { s.classList.toggle("is-live", s === slide); });
+
+      if (motionQuery.matches) {
+        this.wait(REDUCED_HOLD, function () { self.advance(); });
+        return;
+      }
+
+      /* A slide can ask for its own dwell. A run of frames that differ by one
+         ticked checkbox reads as the action happening, not as a slideshow,
+         but only if they come through quickly. */
+      var hold = parseInt(slide.getAttribute("data-hold"), 10);
+      if (hold > 0) {
+        this.wait(hold, function () { self.advance(); });
+        return;
+      }
+
+      this.wait(HOLD_TOP, function () {
+        if (distance > self.screen.clientHeight * SCROLL_MIN) {
+          self.scroll(slide, distance, function () { self.rest(slide); });
+        } else {
+          self.rest(slide);
+        }
+      });
+    };
+
+    Reel.prototype.advance = function () {
+      if (this.cursor) this.cursor.classList.remove("is-on");
+      this.index = (this.index + 1) % this.slides.length;
+      this.play();
+    };
+
+    Reel.prototype.rest = function (slide) {
+      var self = this;
+      this.wait(HOLD_END, function () {
+        self.click(slide, function () { self.advance(); });
+      });
+    };
+
+    Reel.prototype.start = function () {
+      /* A frame on the page you are not looking at measures zero. Starting it
+         there would set its scroll from nonsense and leave it wrong when you
+         arrive; resyncAll brings it up once the page is showing. */
+      if (this.running || !this.screen.clientHeight) return;
+      this.running = true;
+      this.play();
+    };
+
+    Reel.prototype.stop = function () {
+      this.running = false;
+      win.clearTimeout(this.timer);
+      if (this.cursor) this.cursor.classList.remove("is-on", "is-click");
+    };
+
+    var reels = [];
+    frames.forEach(function (frame) {
+      var reel = new Reel(frame);
+      if (!reel.screen || !reel.slides.length) return;
+      reels.push(reel);
+    });
+
+    var syncOne = function (reel) {
+      var onPage = !reel.owner || reel.owner.getAttribute("data-page") === current;
+      if (reel.onScreen && !doc.hidden && onPage) reel.start();
+      else reel.stop();
+    };
+
+    var watcher = new win.IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        reels.forEach(function (reel) {
+          if (reel.frame !== entry.target) return;
+          reel.onScreen = entry.isIntersecting;
+          syncOne(reel);
+        });
+      });
+    }, { threshold: 0.25 });
+    reels.forEach(function (reel) { watcher.observe(reel.frame); });
+
+    /* A background tab throws off the timers, a resize invalidates both the
+       scroll distances and the cursor targets (measured in rendered pixels),
+       and a page change means a frame that measured at zero can now measure
+       properly. All three restart the frames from the top. */
+    var resyncAll = function () {
+      reels.forEach(function (reel) { reel.stop(); syncOne(reel); });
+    };
+    doc.addEventListener("visibilitychange", resyncAll);
+    if (typeof motionQuery.addEventListener === "function") {
+      motionQuery.addEventListener("change", resyncAll);
+    }
+    onPageShown.push(resyncAll);
+    var resizeTimer;
+    win.addEventListener("resize", function () {
+      win.clearTimeout(resizeTimer);
+      resizeTimer = win.setTimeout(resyncAll, 250);
+    }, { passive: true });
+    win.addEventListener("load", resyncAll);
+  })();
 
   /* ---- Contact form ----------------------------------------------------- */
   var form = doc.getElementById("enquiry");

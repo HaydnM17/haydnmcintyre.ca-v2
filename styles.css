@@ -548,6 +548,8 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 /* Device frames. A desktop frame is a browser window with a bar; a phone is
    a bezel. Screenshots stack a header strip over a body capture. */
 .frame-desk {
+  position: relative;
+  --bar: 20px;
   flex: 0 0 auto;
   aspect-ratio: 16 / 10;
   border: 1px solid var(--line-2);
@@ -558,9 +560,10 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 }
 .frame-desk.light { background: #F5F6F8; }
 .pv-web .frame-desk { width: calc(1.3571 * var(--H)); }
-.pv-app .frame-desk { width: 100%; }
+.pv-app .frame-desk { width: 100%; --bar: 24px; }
 .bar {
-  height: 20px;
+  position: absolute; inset: 0 0 auto; z-index: 3;
+  height: var(--bar);
   display: flex; align-items: center; gap: 5px;
   padding: 0 10px;
   background: var(--surface);
@@ -575,10 +578,11 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
   font: 500 8px/1.4 var(--mono);
   letter-spacing: 0.02em;
 }
-.pv-app .bar { height: 24px; }
+
 .pv-app .bar i { width: 7px; height: 7px; }
 .pv-app .bar b { padding: 1px 10px; font-size: 9px; }
 .frame-phone {
+  position: relative;
   flex: 0 0 auto;
   height: 100%;
   border: 3px solid var(--frame);
@@ -589,6 +593,66 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 }
 .pv-web .frame-phone { width: calc(0.4369 * var(--H)); }
 .pv-mob .frame-phone { width: 100%; border-width: 4px; border-radius: 22px; }
+
+/* ---- Animated previews -------------------------------------------------
+   A frame runs a reel: slides that cross fade, each one a page of the thing
+   being shown. Inside a slide the header is pinned the way a real sticky
+   header is and the page scrolls underneath it. A cursor moves to the link
+   the next slide is the result of, clicks it, and only then does the cut
+   happen, so the change reads as the click that caused it. */
+.screen {
+  position: absolute; inset: var(--bar, 0) 0 0;
+  overflow: hidden;
+  border-radius: inherit;
+  /* Falls back to the site ground. A frame showing a light application sets
+     its own, so a page shorter than the frame ends in the colour that page
+     actually has, rather than a black band. */
+  background: var(--screen-bg, var(--ground));
+}
+.frame-phone .screen { inset: 0; }
+.frame-desk.light { --screen-bg: #F5F6F8; }
+
+.reel-slide {
+  position: absolute; inset: 0; display: block;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out);
+}
+.reel-slide.is-live { opacity: 1; }
+/* Both images sit in normal flow, so the page starts below the header exactly
+   as it does on the real page. Transforming the page does not move the
+   header, so the header stays put and the page slides under it. */
+.reel-head { position: relative; z-index: 2; width: 100%; height: auto; display: block; }
+/* Height is auto so a tall capture keeps its own aspect and overflows
+   downward, which is exactly the overflow the script scrolls through. */
+.reel-page { position: relative; z-index: 1; width: 100%; height: auto; display: block; }
+.reel-slide.is-live .reel-page { will-change: transform; }
+
+/* The cursor. Hidden until the script has a reason to move it. */
+.reel-cursor {
+  position: absolute; z-index: 4; top: 0; left: 0;
+  width: 15px; height: 15px; margin: -2px 0 0 -2px;
+  opacity: 0; pointer-events: none;
+  background: var(--chalk);
+  clip-path: polygon(0 0, 0 76%, 22% 58%, 40% 96%, 62% 86%, 44% 49%, 74% 46%);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+  transition: opacity 0.3s linear;
+}
+.reel-cursor.is-on { opacity: 1; }
+/* The click pulse: a ring that expands out from the cursor tip once. */
+.reel-cursor::before {
+  content: ""; position: absolute; top: -4px; left: -4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--brass); opacity: 0; transform: scale(0.3);
+}
+.reel-cursor.is-click::before { animation: reelClick 0.5s var(--ease-out); }
+@keyframes reelClick {
+  0%   { opacity: 0.9; transform: scale(0.3); }
+  100% { opacity: 0;   transform: scale(1.4); }
+}
+/* The crossfade stays under reduced motion. It is opacity only, and it is how
+   a reduced-motion visitor still gets to see every screen. The cursor and the
+   scrolling go, because both of those are movement. */
+@media (prefers-reduced-motion: reduce) { .reel-cursor { display: none; } }
 
 /* ---- About ------------------------------------------------------------ */
 .about-grid {
@@ -723,8 +787,8 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 }
 
 .showcase { height: 400px; display: flex; align-items: flex-end; justify-content: center; gap: 24px; }
-.showcase .frame-desk { flex: 1 1 auto; min-width: 0; border-radius: 14px; }
-.showcase .bar { height: 28px; gap: 6px; padding: 0 12px; }
+.showcase .frame-desk { flex: 1 1 auto; min-width: 0; border-radius: 14px; --bar: 28px; }
+.showcase .bar { gap: 6px; padding: 0 12px; }
 .showcase .bar i { width: 8px; height: 8px; }
 .showcase .bar b { margin-left: 8px; padding: 1px 12px; font: 500 10px/1.5 var(--mono); letter-spacing: 0.02em; }
 .showcase .frame-phone { aspect-ratio: 422 / 966; border-width: 5px; border-radius: 26px; }
@@ -829,7 +893,7 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
   .services-grid > header { grid-column: 1 / -1; }
   .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 56px; }
   .showcase { height: auto; align-items: stretch; }
-  .showcase .frame-phone { display: none; }
+  .showcase { gap: 16px; }
   .carousel-mu { --cell: 78%; }
   .carousel-wk { --cell: 38%; }
 }
