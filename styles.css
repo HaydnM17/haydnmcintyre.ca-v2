@@ -878,33 +878,49 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 /* Screenshot carousel. One capture holds the middle at full size, its
    neighbours sit either side faded and a touch smaller, the rest wait out of
    sight. The script positions every cell from its distance to the active one. */
-.carousel {
-  position: relative;
-  overflow: hidden;
-  padding: 12px 0;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%);
+.carousel { position: relative; --cell: 58cqi; --ratio: 3 / 2; --car-bg: #F4F5F7; }
+.carousel-wk { --cell: 27cqi; --ratio: 540 / 1200; --car-bg: #000; }
+
+.car-view {
+  /* The cell width is a share of this box, so the strip keeps its proportions
+     whatever column it ends up in. */
+  container-type: inline-size;
+  overflow-x: auto;
+  /* No snap: the strip drifts continuously, and a snap would keep hauling it
+     back to the nearest cell mid-drift. */
+  scrollbar-width: none;
+  /* a trackpad swipe past the end stays on the page instead of going back */
+  overscroll-behavior-x: contain;
+  /* headroom so the focused cell can stand proud without clipping */
+  padding-block: 12px;
+  /* Captures dissolve at both ends instead of being cut off by the edge of the
+     scroller, so one fades out as it leaves and the next fades in as it
+     arrives. The arrows sit outside this box, so they stay solid. */
+  --edge: 2rem;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--edge), #000 calc(100% - var(--edge)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--edge), #000 calc(100% - var(--edge)), transparent 100%);
 }
-.car-track { position: relative; }
-.car-sizer { width: var(--cell, 62%); aspect-ratio: var(--ratio, 3 / 2); margin: 0 auto; visibility: hidden; }
+.car-view::-webkit-scrollbar { display: none; }
+.car-view:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+
+.car-track {
+  display: flex; gap: 16px;
+  /* lets the first and last capture reach the centre */
+  padding-inline: calc((100cqi - var(--cell)) / 2);
+}
 .car-cell {
-  position: absolute; top: 0; left: 50%;
-  width: var(--cell, 62%);
-  aspect-ratio: var(--ratio, 3 / 2);
+  flex: 0 0 var(--cell);
+  aspect-ratio: var(--ratio);
+  will-change: transform;
+  display: block; overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
-  overflow: hidden;
-  background: var(--car-bg, #F4F5F7);
-  opacity: 0;
-  transform: translateX(-50%) scale(0.9);
-  transition: transform 0.55s var(--ease-out), opacity 0.45s ease, border-color 0.45s ease;
+  background: var(--car-bg);
 }
-.car-cell.is-active {
+.car-cell.is-focus {
   border-color: var(--line-3);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
-.carousel-mu { --cell: 62%; --ratio: 3 / 2; --car-bg: #F4F5F7; }
-.carousel-wk { --cell: 27%; --ratio: 540 / 1200; --car-bg: #000; }
 .carousel-wk .car-cell { border-radius: 18px; }
 .car-btn {
   position: absolute; top: 50%;
@@ -976,8 +992,8 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
   .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 56px; }
   .showcase { height: auto; align-items: stretch; }
   .showcase { gap: 16px; }
-  .carousel-mu { --cell: 78%; }
-  .carousel-wk { --cell: 38%; }
+  .carousel { --cell: 70cqi; }
+  .carousel-wk { --cell: 34cqi; }
 }
 @media (max-width: 900px) {
   :root { --gutter: 24px; --H: min(280px, 34vw); }
@@ -992,8 +1008,9 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
   .hero-ann { left: 24px; right: 24px; bottom: 24px; }
   .site-foot { margin: 120px var(--gutter) 0; flex-wrap: wrap; }
   .form { padding: 24px; }
-  .carousel-mu { --cell: 86%; }
-  .carousel-wk { --cell: 48%; }
+  .carousel { --cell: 80cqi; }
+  .carousel-wk { --cell: 44cqi; }
+  .car-view { --edge: 1.25rem; }
   .drop-wrap { display: none; }
 }
 @media (max-width: 720px) {
@@ -1001,5 +1018,6 @@ main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 }
 @media (max-width: 560px) {
   .hero-ann { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
-  .carousel-wk { --cell: 62%; }
+  .carousel { --cell: 88cqi; }
+  .carousel-wk { --cell: 60cqi; }
 }

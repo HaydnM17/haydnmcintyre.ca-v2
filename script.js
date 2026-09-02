@@ -61,6 +61,10 @@
   /* Anything that has to reconsider itself when the motion preference flips. */
   var onStillChange = [];
 
+  /* Set by the preview reels once they exist, so the scroll tick can start
+     them the moment their panel finishes arriving. */
+  var syncReels = null;
+
   var show = function (page) {
     if (page === current) return false;
     current = page;
@@ -277,6 +281,10 @@
     if (neb.green) neb.green.style.opacity = String(1 - 0.55 * P);
     if (neb.electric) neb.electric.style.opacity = String(0.55 + 0.45 * Math.sin(P * Math.PI));
     if (neb.brass) neb.brass.style.opacity = String(0.4 + 0.6 * P);
+
+    /* A preview only starts once its panel has actually arrived, so its
+       scroll is not spent while it is still a speck at the vanishing point. */
+    if (syncReels) syncReels();
   };
 
   var kick = function () {
@@ -306,88 +314,215 @@
   }
 
   /* ---- Screenshot carousels ---------------------------------------------
-     One capture holds the middle at full size. Its neighbours sit either
-     side, faded and a touch smaller, scaled from their inner edge so the gap
-     between cells stays put. Everything further out waits unseen. */
-  doc.querySelectorAll("[data-carousel]").forEach(function (car) {
-    var cells = Array.prototype.slice.call(car.querySelectorAll(".car-cell"));
-    var prev = car.querySelector(".car-prev");
-    var next = car.querySelector(".car-next");
-    if (cells.length < 2 || !prev || !next) return;
+     A slow endless drift. One capture holds the middle at full size; the rest
+     sit further back, smaller and dimmer, and slide forward into focus as the
+     strip moves. The cells are cloned so the run repeats seamlessly: when the
+     scroll passes the end of the first set the position jumps back by exactly
+     one set width, which is invisible because the pixels either side of the
+     seam are identical, and it means there is no last picture that cannot
+     reach the middle.
 
-    var active = parseInt(car.getAttribute("data-carousel"), 10) || 0;
-    var GAP = 16;
+     The drift runs on scroll position rather than a transform, so a swipe, a
+     trackpad and the arrows all share one coordinate system. It pauses on
+     hover, on focus, while a pointer is down, when the tab is hidden, when
+     the strip is off screen and while you are on the other page, and it does
+     not run at all under reduced motion, where the strip is a plain scroller
+     with working arrows. */
+  doc.querySelectorAll("[data-strip]").forEach(function (strip) {
+    var view = strip.querySelector(".car-view");
+    var track = strip.querySelector(".car-track");
+    var prev = strip.querySelector(".car-prev");
+    var next = strip.querySelector(".car-next");
+    if (!view || !track || !prev || !next) return;
 
+    var originals = Array.prototype.slice.call(track.children);
+    if (originals.length < 2) return;
+
+    /* Three sets, with the drift held in the middle one, so there is always a
+       whole set of pictures laid out to the left and to the right of the
+       view. Two sets left a hole on the left every time the position wrapped
+       back to the start, because nothing existed before the first cell. */
+    for (var copies = 0; copies < 2; copies++) {
+      originals.forEach(function (cell) {
+        var copy = cell.cloneNode(true);
+        copy.setAttribute("aria-hidden", "true");
+        copy.classList.add("is-clone");
+        track.appendChild(copy);
+      });
+    }
+
+    var cells = Array.prototype.slice.call(track.children);
+    var setWidth = 0;
+    var measure = function () {
+      /* distance from the first cell to its own clone: one whole set */
+      setWidth = cells[originals.length].offsetLeft - cells[0].offsetLeft;
+    };
+
+    /* The drift keeps its own position because a fractional increment written
+       straight to scrollLeft can be rounded away, and at this speed every
+       frame moves less than a quarter of a pixel: the rounding would eat the
+       whole movement and the strip would sit still. Reset to null whenever
+       something else moves the strip, so the next frame re-reads it. */
+    var pos = null;
+    var DRIFT = 40; /* px per second: about ten seconds a picture, so the
+                       motion reads as motion straight away rather than as a
+                       still that occasionally jumps */
+
+    /* Held inside the middle set. The jump is invisible because the pixels a
+       whole set apart are identical. */
+    var wrap = function () {
+      if (setWidth <= 0) return;
+      if (pos === null) pos = view.scrollLeft;
+      if (pos >= setWidth * 2) pos -= setWidth;
+      else if (pos < setWidth) pos += setWidth;
+      view.scrollLeft = pos;
+    };
+
+    /* Move the strip into the middle set from wherever it sits, so it opens
+       with pictures on both sides instead of flush against nothing. */
+    var normalise = function () {
+      if (setWidth <= 0) return;
+      var p = pos === null ? view.scrollLeft : pos;
+      pos = setWidth + (((p % setWidth) + setWidth) % setWidth);
+      view.scrollLeft = pos;
+    };
+
+    /* Depth: each cell shrinks and dims by how far it sits from the middle. */
     var paint = function () {
-      var w = cells[0].offsetWidth;
-      cells.forEach(function (cell, i) {
-        var d = i - active;
-        var a = Math.abs(d);
-        var s = a === 0 ? 1 : a === 1 ? 0.94 : 0.9;
-        var o = a === 0 ? 1 : a === 1 ? 0.45 : a === 2 ? 0.3 : 0;
-        cell.style.transformOrigin = d < 0 ? "100% 50%" : d > 0 ? "0% 50%" : "50% 50%";
-        cell.style.transform = "translateX(calc(-50% + " + (d * (w + GAP)).toFixed(1) + "px)) scale(" + s + ")";
-        cell.style.opacity = String(o);
-        cell.classList.toggle("is-active", a === 0);
-        cell.setAttribute("aria-hidden", a === 0 ? "false" : "true");
+      if (motionQuery.matches) return;
+      var mid = view.scrollLeft + view.clientWidth / 2;
+      var span = view.clientWidth;
+      if (!span) return;
+      cells.forEach(function (cell) {
+        var off = cell.offsetLeft + cell.offsetWidth / 2 - mid;
+        var d = Math.abs(off) / span;
+        var scale = Math.max(0.84, 1 - d * 0.38);
+        var fade = Math.max(0.38, 1 - d * 1.5);
+        /* Shrink towards the middle of the strip rather than towards each
+           cell's own centre, which dragged the ones at the sides further out
+           of the view and left barely a sliver of them showing. Sliding the
+           origin across keeps it continuous: a cell passing the middle would
+           otherwise jump the width of its own scale. */
+        var t = Math.max(-1, Math.min(1, off / (span * 0.5)));
+        cell.style.transformOrigin = (50 - t * 50).toFixed(1) + "% 50%";
+        cell.style.transform = "scale(" + scale.toFixed(3) + ")";
+        cell.style.opacity = fade.toFixed(3);
+        cell.classList.toggle("is-focus", d < 0.14);
       });
     };
 
-    var step = function (dir) {
-      active = (active + dir + cells.length) % cells.length;
+    /* Reasons the drift is currently stopped. It runs only when none hold. */
+    var owner = strip.closest("main[data-page]");
+    var held = {
+      hover: false, press: false, hidden: doc.hidden, off: true, step: false,
+      away: !!owner && owner.getAttribute("data-page") !== current
+    };
+    var running = false, last = 0, raf = 0;
+
+    var frame = function (now) {
+      if (!running) return;
+      var dt = Math.min((now - last) / 1000, 0.05); /* clamp after a stall */
+      last = now;
+      if (pos === null) pos = view.scrollLeft;
+      pos += DRIFT * dt;
+      wrap();
       paint();
+      raf = win.requestAnimationFrame(frame);
     };
 
-    /* It walks itself through the screens, slowly, so the project reads as a
-       tour rather than one still with arrows nobody presses. Every reason to
-       stop is a reason someone is looking at it: the pointer is over it, it
-       has focus, the tab is in the background, it is off screen, or it is on
-       the page you are not on. Under reduced motion it holds still and the
-       arrows do the work. */
-    var DWELL = 4500;
-    var held = { hover: false, hidden: doc.hidden, off: true, away: false };
-    var owner = car.closest("main[data-page]");
-    var timer = 0;
     var sync = function () {
-      win.clearInterval(timer);
-      timer = 0;
-      if (still || held.hover || held.hidden || held.off || held.away) return;
-      timer = win.setInterval(function () { step(1); }, DWELL);
+      var should = !motionQuery.matches && !capture &&
+        !held.hover && !held.press && !held.hidden && !held.off &&
+        !held.step && !held.away;
+      if (should === running) return;
+      running = should;
+      if (running) {
+        last = win.performance.now();
+        pos = null; /* something else may have moved it while we were stopped */
+        raf = win.requestAnimationFrame(frame);
+      } else {
+        win.cancelAnimationFrame(raf);
+      }
     };
-    var hold = function (key, on) { held[key] = on; sync(); };
-    /* A press restarts the dwell, so the next automatic move is a full beat
-       away rather than however long was left on the clock. */
-    var drive = function (dir) { step(dir); sync(); };
 
-    prev.addEventListener("click", function () { drive(-1); });
-    next.addEventListener("click", function () { drive(1); });
-    car.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowLeft") { drive(-1); e.preventDefault(); }
-      if (e.key === "ArrowRight") { drive(1); e.preventDefault(); }
+    var hold = function (key, on) { held[key] = on; sync(); };
+
+    /* Arrows step one capture and hand back to the drift once it has landed. */
+    var stepTimer = 0;
+    var step = function (dir) {
+      var mid = view.scrollLeft + view.clientWidth / 2;
+      var best = null, dist = Infinity;
+      cells.forEach(function (cell, i) {
+        var d = Math.abs(cell.offsetLeft + cell.offsetWidth / 2 - mid);
+        if (d < dist) { dist = d; best = i; }
+      });
+      var target = cells[Math.min(cells.length - 1, Math.max(0, best + dir))];
+      if (!target) return;
+      hold("step", true);
+      view.scrollTo({
+        left: target.offsetLeft + target.offsetWidth / 2 - view.clientWidth / 2,
+        behavior: motionQuery.matches ? "auto" : "smooth"
+      });
+      win.clearTimeout(stepTimer);
+      stepTimer = win.setTimeout(function () {
+        /* the arrow moved it, so the drift position is stale: re-read before
+           wrapping, or the wrap writes the old position straight back */
+        pos = null;
+        wrap();
+        hold("step", false);
+      }, 700);
+    };
+    prev.addEventListener("click", function () { step(-1); });
+    next.addEventListener("click", function () { step(1); });
+    view.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") { step(-1); e.preventDefault(); }
+      if (e.key === "ArrowRight") { step(1); e.preventDefault(); }
     });
-    car.addEventListener("pointerenter", function () { hold("hover", true); });
-    car.addEventListener("pointerleave", function () { hold("hover", false); });
-    car.addEventListener("focusin", function () { hold("hover", true); });
-    car.addEventListener("focusout", function () { hold("hover", false); });
+
+    view.addEventListener("scroll", paint, { passive: true });
+    strip.addEventListener("pointerenter", function () { hold("hover", true); });
+    strip.addEventListener("pointerleave", function () { hold("hover", false); });
+    strip.addEventListener("focusin", function () { hold("hover", true); });
+    strip.addEventListener("focusout", function () { hold("hover", false); });
+    view.addEventListener("pointerdown", function () { hold("press", true); });
+    win.addEventListener("pointerup", function () { hold("press", false); }, { passive: true });
     doc.addEventListener("visibilitychange", function () { hold("hidden", doc.hidden); });
+
+    var settle = function () {
+      measure();
+      normalise();
+      if (motionQuery.matches) {
+        cells.forEach(function (cell) {
+          cell.style.transform = ""; cell.style.opacity = "";
+          cell.classList.add("is-focus");
+        });
+      } else {
+        paint();
+      }
+      sync();
+    };
+    win.addEventListener("resize", function () { win.setTimeout(settle, 120); }, { passive: true });
+    if (typeof motionQuery.addEventListener === "function") {
+      motionQuery.addEventListener("change", settle);
+    }
+    /* A strip on the page you are not looking at measures zero, so it has to
+       measure again once that page is showing. */
+    onPageShown.push(function () {
+      held.away = !!owner && owner.getAttribute("data-page") !== current;
+      settle();
+    });
+
     if ("IntersectionObserver" in win) {
       new win.IntersectionObserver(function (entries) {
         entries.forEach(function (entry) { hold("off", !entry.isIntersecting); });
-      }, { threshold: 0.2 }).observe(car);
+      }, { threshold: 0.15 }).observe(strip);
     } else {
       held.off = false;
     }
 
-    win.addEventListener("resize", paint, { passive: true });
-    win.addEventListener("load", paint);
-    onPageShown.push(function () {
-      paint();
-      hold("away", !!owner && owner.getAttribute("data-page") !== current);
-    });
-    onStillChange.push(sync);
-    held.away = !!owner && owner.getAttribute("data-page") !== current;
-    paint();
-    sync();
+    /* Images arrive late, and the set width depends on them. */
+    win.addEventListener("load", settle);
+    settle();
   });
 
   /* ---- Animated previews ------------------------------------------------
@@ -428,11 +563,23 @@
       this.screen = frame.querySelector(".screen");
       this.slides = Array.prototype.slice.call(frame.querySelectorAll(".reel-slide"));
       this.cursor = frame.querySelector(".reel-cursor");
+      this.panel = frame.closest("[data-approach]");
       this.owner = frame.closest("main[data-page]");
       this.index = 0;
       this.timer = 0;
       this.running = false;
     }
+
+    /* Frames inside an approach panel spend most of their life tiny and faded
+       at the vanishing point. Running there would burn the whole twelve second
+       scroll before anyone could see it, and the preview would arrive parked
+       at the bottom of its page, only ever crossfading. Wait until the panel
+       has essentially landed. */
+    Reel.prototype.arrived = function () {
+      if (!this.panel) return true;
+      var o = parseFloat(this.panel.style.opacity);
+      return isNaN(o) ? true : o >= 0.85;
+    };
 
     Reel.prototype.wait = function (ms, next) {
       var self = this;
@@ -575,7 +722,7 @@
 
     var syncOne = function (reel) {
       var onPage = !reel.owner || reel.owner.getAttribute("data-page") === current;
-      if (reel.onScreen && !doc.hidden && onPage) reel.start();
+      if (reel.onScreen && !doc.hidden && onPage && reel.arrived()) reel.start();
       else reel.stop();
     };
 
@@ -594,6 +741,9 @@
        scroll distances and the cursor targets (measured in rendered pixels),
        and a page change means a frame that measured at zero can now measure
        properly. All three restart the frames from the top. */
+    var refresh = function () { reels.forEach(syncOne); };
+    syncReels = refresh;
+
     var resyncAll = function () {
       reels.forEach(function (reel) { reel.stop(); syncOne(reel); });
     };
