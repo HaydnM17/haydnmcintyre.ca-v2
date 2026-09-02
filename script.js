@@ -265,14 +265,36 @@
       var start = parseFloat(el.getAttribute("data-approach")) || 1.7;
       var q = still ? 1 : ease(clamp((vh * start - top) / (vh * (start - 0.3))));
       var x = still ? 0 : ease(clamp((vh * 0.22 - bottom) / (vh * 0.4)));
-      var k = Math.pow(0.08, 1 - q) * (1 + 0.9 * x);   /* 8% far off, 1 landed, 1.9 leaving */
+      /* Arriving it grows from a speck to full size. Leaving it shrinks away
+         again rather than swelling overhead: the handoff had it grow to 1.9 on
+         the way out, which read as something lunging at you in the corner of
+         your eye while it faded. Receding is quieter and says the same thing.  */
+      var k = Math.pow(0.08, 1 - q) * (1 - 0.4 * x);   /* 8% far off, 1 landed, 0.6 leaving */
       var z = PERSP * (1 - 1 / k);
       var dy = (1 - q) * (vh * 0.5 - (top + h / 2)) / k;   /* far panels gather at the vanishing point */
       el.style.opacity = String(Math.pow(q, 0.6) * (1 - x));
       el.style.zIndex = String(1 + Math.round(q * 4 + x * 4));
-      el.style.transform =
-        "perspective(" + PERSP + "px) translateY(" + dy.toFixed(1) + "px) translateZ(" + z.toFixed(1) + "px)" +
-        " rotateX(" + (26 * (1 - q) - 12 * x).toFixed(2) + "deg)";
+
+      /* Standing still at full size, drop the transform entirely rather than
+         write an identity one. Under perspective the panel keeps a composited
+         layer that is re-rasterised every time the transform is rewritten, and
+         the preview scrolling inside it flickered the whole way down the page.
+         Only written on the change, so this is not a per-frame style write. */
+      if (q >= 0.999 && x <= 0.001) {
+        if (el.dataset.settled !== "1") {
+          el.dataset.settled = "1";
+          el.style.transform = "none";
+          el.style.willChange = "auto";
+        }
+      } else {
+        if (el.dataset.settled === "1") {
+          el.dataset.settled = "";
+          el.style.willChange = "transform, opacity";
+        }
+        el.style.transform =
+          "perspective(" + PERSP + "px) translateY(" + dy.toFixed(1) + "px) translateZ(" + z.toFixed(1) + "px)" +
+          " rotateX(" + (26 * (1 - q) - 12 * x).toFixed(2) + "deg)";
+      }
     });
 
     /* The nebula shifts tint over the journey: green, then teal, then brass. */
