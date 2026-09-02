@@ -65,6 +65,10 @@
      them the moment their panel finishes arriving. */
   var syncReels = null;
 
+  /* Set by the section arrows once they exist, so the same tick decides which
+     of the two still has somewhere to go. */
+  var syncJump = null;
+
   var show = function (page) {
     if (page === current) return false;
     current = page;
@@ -75,24 +79,28 @@
   };
 
   /* A section's box begins at its top padding, and that padding is large on
-     purpose: 180px everywhere, and a third of a screen above Websites so it is
+     purpose: 260px everywhere, and a third of a screen above Websites so it is
      nowhere near the opening. Aiming at the box therefore stopped a screen or
      two short of the thing being linked to, worst of all for Websites. Aim at
      the panel that holds the content instead, and leave the fixed header its
-     own height plus a little air. */
+     own height plus a little air. The nav links and the section arrows both
+     land here, so there is one answer to where a section starts. */
+  var HEAD_CLEAR = 110;
+
+  var anchorTop = function (el) {
+    if (!el) return 0;
+    /* The panel carries a 3D transform until it lands, and a rect is the
+       transformed box, so it cannot be measured directly. Its offsetTop is
+       layout and is not affected, so read it off the section, which is
+       never transformed. The scroll tick does the same thing. */
+    var panel = el.querySelector(":scope > .approach");
+    var base = el.getBoundingClientRect().top + win.scrollY;
+    return Math.max(0, base + (panel ? panel.offsetTop : 0) - HEAD_CLEAR);
+  };
+
   var scrollToAnchor = function (anchor, instant) {
     var el = anchor ? doc.getElementById(anchor) : null;
-    var top = 0;
-    if (el) {
-      /* The panel carries a 3D transform until it lands, and a rect is the
-         transformed box, so it cannot be measured directly. Its offsetTop is
-         layout and is not affected, so read it off the section, which is
-         never transformed. The scroll tick does the same thing. */
-      var panel = el.querySelector(":scope > .approach");
-      var base = el.getBoundingClientRect().top + win.scrollY;
-      top = base + (panel ? panel.offsetTop : 0) - 110;
-    }
-    win.scrollTo({ top: Math.max(0, top), behavior: still || instant ? "auto" : "smooth" });
+    win.scrollTo({ top: anchorTop(el), behavior: still || instant ? "auto" : "smooth" });
   };
 
   /* Prevents the default, sets the page, then after a frame scrolls to the
@@ -372,6 +380,10 @@
 
     lightParagraphs(vh);
 
+    /* Which arrow still has somewhere to go changes with scroll position and
+       with the height of the page, both of which this tick already sees. */
+    if (syncJump) syncJump();
+
     /* A preview only starts once its panel has actually arrived, so its
        scroll is not spent while it is still a speck at the vanishing point. */
     if (syncReels) syncReels();
@@ -402,6 +414,91 @@
   if (location.hash.length > 1) {
     win.addEventListener("load", function () { scrollToAnchor(location.hash.slice(1), true); });
   }
+
+  /* ---- Stepping through the sections ------------------------------------
+     Two flat chevrons at the foot of the screen, one section a press. They
+     aim where the nav links aim, at the panel rather than at the top of the
+     padding above it, so a press lands on the thing and not on the gap. The
+     arrow with nowhere left to go is hidden outright rather than dimmed: at
+     either end of a page the pair never offers a press that does nothing. */
+  (function () {
+    var up = doc.getElementById("jump-up");
+    var down = doc.getElementById("jump-down");
+    if (!up || !down) return;
+
+    /* A landed section sits a pixel or so either side of its own stop, and a
+       fractional device pixel ratio widens that. Anything inside this counts
+       as already there, so the arrow offers the next one along instead of
+       nudging you back onto the section you are looking at. Sections are at
+       least a hundred pixels apart, so it cannot skip one. */
+    var EPS = 8;
+
+    /* How far the page can actually go. clientHeight, not innerHeight: the
+       latter counts the horizontal scrollbar gutter, and the difference is
+       enough that a stop clamped with it lands past the real foot of the
+       page, which would leave the down arrow lit over a press that cannot
+       move anything. */
+    var maxScroll = function () {
+      return Math.max(0, root.scrollHeight - root.clientHeight);
+    };
+
+    /* Every stop on the page showing, in document order. Measured on demand
+       rather than cached: sections are never transformed, so this is layout
+       the browser is holding anyway, and a cache would only go stale behind
+       every image that finishes loading. Clamped to the scrollable range so
+       a last section too close to the foot of the page still gets a press
+       that goes somewhere. */
+    var stops = function () {
+      var main = pages[current];
+      var out = [];
+      if (!main) return out;
+      var max = maxScroll();
+      Array.prototype.forEach.call(main.children, function (sec) {
+        if (sec.tagName !== "SECTION") return;
+        out.push(Math.min(anchorTop(sec), max));
+      });
+      return out;
+    };
+
+    /* The nearest stop past y in the given direction, or null for none. */
+    var beyond = function (list, y, dir) {
+      var found = null;
+      for (var i = 0; i < list.length; i++) {
+        if (dir > 0) {
+          if (list[i] > y + EPS) { found = list[i]; break; }
+        } else if (list[i] < y - EPS) {
+          found = list[i];
+        }
+      }
+      return found;
+    };
+
+    var step = function (dir) {
+      var to = beyond(stops(), win.scrollY, dir);
+      if (to === null) return;
+      win.scrollTo({ top: to, behavior: still ? "auto" : "smooth" });
+    };
+
+    up.addEventListener("click", function () { step(-1); });
+    down.addEventListener("click", function () { step(1); });
+
+    /* Only written on the change. The tick runs this every frame the page
+       moves, and setting hidden to what it already is still costs a style
+       invalidation. */
+    var reveal = function (el, gone) { if (el.hidden !== gone) el.hidden = gone; };
+
+    syncJump = function () {
+      var list = stops();
+      var y = win.scrollY;
+      /* Sitting on the last of the page is its own end, whatever the stops
+         say. A section whose own stop is below the foot of the page would
+         otherwise keep the arrow lit once you were already as far as the
+         page goes. */
+      reveal(up, beyond(list, y, -1) === null);
+      reveal(down, y >= maxScroll() - EPS || beyond(list, y, 1) === null);
+    };
+    syncJump();
+  })();
 
   /* ---- The rule under a section label -----------------------------------
      Draws itself across once the label is on screen, and stays drawn. */

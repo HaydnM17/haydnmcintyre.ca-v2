@@ -530,9 +530,9 @@ body.is-locked { overflow: hidden; }
 .facts dd a:hover, .facts dd a:focus-visible { color: var(--chalk); border-color: var(--chalk); }
 
 /* ---- Sections and the approach --------------------------------------- */
-.sec { position: relative; padding: 200px var(--gutter) 0; }
+.sec { position: relative; padding: 280px var(--gutter) 0; }
 .sec-tight { padding-top: 40px; }
-main[data-page="portfolio"] .sec { padding-top: 180px; }
+main[data-page="portfolio"] .sec { padding-top: 260px; }
 /* The portfolio opens on the bio and nothing else. The intro takes the whole
    first screen, so Websites starts just below the fold and is still at nothing
    when you land; a short scroll brings it in. Tying the height to the viewport
@@ -1077,6 +1077,46 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .site-foot .gh svg { display: block; }
 .site-foot .copy { margin: 0; font: 300 14px/1.4 var(--sans); color: var(--mist); }
 
+/* ---- Section arrows -----------------------------------------------------
+   One press a section, at the foot of the screen. Centred rather than in a
+   corner: the hero annotation holds both bottom corners, and the carousel
+   arrows hold both sides, so the middle of the bottom edge is the only place
+   on the page nothing else already wants. Bare chevrons, no disc and no
+   border, so they read as a direction and not as a third kind of button.
+   Sits under the menu scrim, so an open menu covers them. */
+.jump {
+  position: fixed; z-index: 25;
+  left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px;
+}
+.jump-btn {
+  display: grid; place-items: center;
+  width: 46px; height: 24px;
+  padding: 0;
+  background: none; border: 0;
+  color: var(--moss);
+  cursor: pointer;
+  transition: color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+/* .jump-btn sets a display, which outranks the one the hidden attribute
+   carries. Without this the script hides nothing. */
+.jump-btn[hidden] { display: none; }
+/* A rim of ground colour hugging the stroke, so a chevron still reads where
+   the page underneath is a bright screenshot. A pool of shade behind the pair
+   did the same job and showed up as a grey smudge on every light thing it
+   crossed; a rim this tight is invisible against the dark ground. */
+.jump-btn svg {
+  display: block; width: 28px; height: auto;
+  filter: drop-shadow(0 0 2px rgba(10, 16, 14, 0.95))
+          drop-shadow(0 1px 5px rgba(10, 16, 14, 0.7));
+}
+.jump-up svg { transform: rotate(180deg); }
+.jump-btn:hover, .jump-btn:focus-visible { color: var(--brass); }
+.jump-up:hover { transform: translateY(-2px); }
+.jump-down:hover { transform: translateY(2px); }
+
 /* ---- Reduced motion --------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -1103,7 +1143,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
      shared one, which left the phone looking like an afterthought beside it. */
   .previews { flex-direction: column; align-items: center; gap: 52px; }
   .site-head { padding: 0 24px; }
-  .sec, main[data-page="portfolio"] .sec { padding-top: 120px; }
+  .sec, main[data-page="portfolio"] .sec { padding-top: 170px; }
   .h2, .pf-intro .h1 { font-size: clamp(48px, 11vw, 88px); }
   .h3 { font-size: 32px; }
   .pf-head { grid-template-columns: minmax(0, 1fr); align-items: start; }
