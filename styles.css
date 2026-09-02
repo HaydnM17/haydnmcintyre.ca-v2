@@ -1049,7 +1049,10 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .carousel-wk { --cell: 34cqi; }
 }
 @media (max-width: 900px) {
-  :root { --gutter: 24px; --H: min(280px, 34vw); }
+  :root { --gutter: 24px; --H: min(280px, 45vw); }
+  /* Each project gets its own row. Movement Unlimited and Workout Tracker
+     shared one, which left the phone looking like an afterthought beside it. */
+  .previews { flex-direction: column; align-items: center; gap: 52px; }
   .site-head { padding: 0 24px; }
   .sec, main[data-page="portfolio"] .sec { padding-top: 120px; }
   .h2, .pf-intro .h1 { font-size: clamp(48px, 11vw, 88px); }
