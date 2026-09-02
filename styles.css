@@ -434,7 +434,10 @@ body.is-locked { overflow: hidden; }
   text-wrap: pretty;
 }
 .prose p:first-of-type { margin-top: 48px; }
-.prose p.lead { color: var(--chalk); }
+
+/* The paragraph over the middle of the screen. */
+.prose p, .blurb { transition: color 0.35s ease; }
+.prose p.is-lit, .blurb.is-lit { color: var(--chalk); }
 
 .text-link {
   color: var(--mist);

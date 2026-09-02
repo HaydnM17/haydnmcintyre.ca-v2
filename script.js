@@ -221,6 +221,37 @@
   };
   var panels = Array.prototype.slice.call(doc.querySelectorAll("[data-approach]"));
 
+  /* ---- The paragraph you are reading ------------------------------------
+     Whichever body paragraph sits over the middle of the screen goes chalk;
+     the rest sit back in mist. A column of copy then reads a line at a time
+     as it goes past, rather than all shouting at once. Kickers, the role line
+     and the service cells are left out: the services are a grid, so several
+     share a height and lighting one of them says nothing. */
+  var litParas = Array.prototype.slice.call(
+    doc.querySelectorAll(".prose p:not(.kicker):not(.role), .blurb")
+  );
+  var litNow = null;
+  var lightParagraphs = function (vh) {
+    var mid = vh / 2;
+    var best = null;
+    /* Nothing is lit unless something is genuinely near the middle, so the
+       hero and the big empty runs between sections leave the copy alone. */
+    var bestD = vh * 0.35;
+    litParas.forEach(function (para) {
+      /* offsetParent is null on the page you are not looking at. */
+      if (!para.offsetParent) return;
+      var r = para.getBoundingClientRect();
+      /* Distance to the nearest edge, so a paragraph tall enough to span the
+         middle counts as nought rather than being measured from its centre. */
+      var d = mid < r.top ? r.top - mid : (mid > r.bottom ? mid - r.bottom : 0);
+      if (d < bestD) { bestD = d; best = para; }
+    });
+    if (best === litNow) return;
+    if (litNow) litNow.classList.remove("is-lit");
+    if (best) best.classList.add("is-lit");
+    litNow = best;
+  };
+
   var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
   var ease = function (v) { return v * v * (3 - 2 * v); };   /* smoothstep */
   var PERSP = 1100;
@@ -303,6 +334,8 @@
     if (neb.green) neb.green.style.opacity = String(1 - 0.55 * P);
     if (neb.electric) neb.electric.style.opacity = String(0.55 + 0.45 * Math.sin(P * Math.PI));
     if (neb.brass) neb.brass.style.opacity = String(0.4 + 0.6 * P);
+
+    lightParagraphs(vh);
 
     /* A preview only starts once its panel has actually arrived, so its
        scroll is not spent while it is still a speck at the vanishing point. */
