@@ -440,7 +440,13 @@
     close.addEventListener("click", shut);
     /* a click that lands on the dialog itself is a click on the backdrop */
     dialog.addEventListener("click", function (e) { if (e.target === dialog) shut(); });
+    /* close is delivered asynchronously, so closing one capture and clicking
+       the next in quick succession let this run after the new one had already
+       opened: it wiped the image and unlocked the page, leaving an empty
+       lightbox over an unscrollable-looking document. If it has been reopened
+       by the time this arrives, there is nothing to tidy. */
     dialog.addEventListener("close", function () {
+      if (dialog.open) return;
       doc.body.classList.remove("is-locked");
       big.removeAttribute("src");
       big.alt = "";
@@ -453,7 +459,9 @@
         opener = from || null;
         big.src = img.currentSrc || img.src;
         big.alt = img.alt || "";
-        dialog.showModal();
+        /* showModal throws if it is already open, which would abort the rest
+           of this and leave the previous picture up. */
+        if (!dialog.open) dialog.showModal();
         doc.body.classList.add("is-locked");
         close.focus();
       }
