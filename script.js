@@ -193,13 +193,31 @@
   onPageShown.push(syncCurrent);
   syncCurrent();
 
-  /* ---- The scene ------------------------------------------------------- */
+  /* ---- The scene, and the opening ---------------------------------------
+     The cover lifts when the scene reports itself ready. A cap on the wait
+     means a slow connection or a machine without WebGL still gets in rather
+     than staring at the ground colour, and the static mark is only raised
+     when the scene has actually said it failed. */
   var scene = doc.querySelector("space-scene");
   var fallback = doc.getElementById("mark-fallback");
+  var booted = false;
+  var boot = function () {
+    if (booted) return;
+    booted = true;
+    win.clearTimeout(bootTimer);
+    root.classList.remove("booting");
+  };
+  var bootTimer = win.setTimeout(boot, 2200);
+
   if (scene) {
-    var sceneUp = function () { root.classList.add("has-scene"); };
+    var sceneUp = function () { root.classList.add("has-scene"); boot(); };
+    var sceneDown = function () { root.classList.add("no-scene"); boot(); };
     if (scene.hasAttribute("ready")) sceneUp();
+    else if (scene.hasAttribute("failed")) sceneDown();
     scene.addEventListener("scene-ready", sceneUp);
+    scene.addEventListener("scene-failed", sceneDown);
+  } else {
+    boot();
   }
 
   /* ---- One tick a frame ------------------------------------------------
