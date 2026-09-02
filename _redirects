@@ -1,6 +1,8 @@
 # The portfolio is the same document as the home page with its page state set,
-# so /portfolio has to serve index.html as-is (a 200 rewrite, not a redirect).
-/portfolio        /index.html   200
+# so /portfolio has to serve the home document as-is (a 200 rewrite, not a
+# redirect). The target is / rather than /index.html: Pages redirects
+# /index.html to / itself, and that redirect leaked through the rewrite.
+/portfolio        /             200
 # The v1 site used a real portfolio.html. Keep old links and resumes working.
 /portfolio.html   /portfolio    301
 /portfolio/       /portfolio    301
