@@ -7,7 +7,7 @@ push forward through a starfield, with the brass HM mark hanging ahead of you
 in the hero and every section arriving from the vanishing point as you scroll.
 
 Plain HTML, CSS and JavaScript. No framework, no build step, no npm. three.js
-is vendored as a single file so that stays true.
+is vendored as two files so that stays true.
 
 ## Files
 
@@ -18,6 +18,7 @@ is vendored as a single file so that stays true.
 | `script.js` | Page switching, the scroll tick (hero beats, section approach, nebula), carousels, contact form |
 | `space-scene.js` | The WebGL backdrop: stars, wave grids and the 3D mark the camera flies through |
 | `vendor/three.module.min.js` | three.js 0.184.0, loaded by `space-scene.js` |
+| `vendor/three.core.min.js` | The other half of the same build; `three.module.min.js` imports it |
 | `functions/api/contact.js` | Contact form endpoint, deployed by Cloudflare Pages |
 | `_redirects` | Serves `index.html` at `/portfolio`, and points the old `portfolio.html` at it |
 | `assets/work/` | Project screenshots |
