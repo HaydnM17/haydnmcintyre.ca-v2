@@ -170,6 +170,9 @@
 
       // Camera: the whole page is one push forward. Lerped so the ride is smooth.
       var target = -this._scroll * (this._d0 / this._gate);
+      // First frame lands where it belongs rather than lerping in from the
+      // mark: loading /portfolio directly used to fly through it on arrival.
+      if (!this._placed) { this._z = target; this._placed = true; }
       this._z += (target - this._z) * 0.14;
       var camZ = this._z, cam = this._camera;
       cam.position.set(GAP_X, 0, camZ);

@@ -405,6 +405,11 @@ html[data-page="portfolio"] .mark-fallback { display: none; }
 .sec { position: relative; padding: 200px var(--gutter) 0; }
 .sec-tight { padding-top: 40px; }
 main[data-page="portfolio"] .sec { padding-top: 180px; }
+/* The portfolio lands you on Websites: the intro is a masthead above it, not
+   a screen of its own, and the first project does not fly in because it is
+   already where you arrived. */
+main[data-page="portfolio"] .sec-intro { padding-top: 124px; }
+main[data-page="portfolio"] .sec-first { padding-top: 92px; }
 
 /* Every section's content sits in one panel that flies in from the vanishing
    point. The script writes transform, opacity and z-index every frame from
@@ -670,6 +675,7 @@ main[data-page="portfolio"] .sec { padding-top: 180px; }
 .pf-intro .h1 { margin: 0; font: 300 88px/0.85 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
 .pf-intro .role { margin: 22px 0 0; font: 400 18px/1.2 var(--sans); color: var(--brass); }
 .pf-intro .prose p { margin-top: 44px; max-width: 60ch; }
+.pf-intro .links-inline { margin-top: 28px; }
 .links-inline {
   display: flex; flex-wrap: wrap; gap: 8px 28px;
   margin: 36px 0 0; padding: 0; list-style: none;

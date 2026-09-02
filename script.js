@@ -57,6 +57,9 @@
      page is showing; a hidden page lays out at zero. */
   var onPageShown = [];
 
+  /* Anything that has to reconsider itself when the motion preference flips. */
+  var onStillChange = [];
+
   var show = function (page) {
     if (page === current) return false;
     current = page;
@@ -234,7 +237,7 @@
   win.addEventListener("resize", kick);
   win.addEventListener("load", kick);
   if (typeof motionQuery.addEventListener === "function") {
-    motionQuery.addEventListener("change", function (e) { still = e.matches; kick(); });
+    motionQuery.addEventListener("change", function (e) { still = e.matches; kick(); onStillChange.forEach(function (fn) { fn(); }); });
   }
   /* One synchronous pass so the first paint already has every panel where
      it belongs, rather than a frame of everything sitting upright. */
@@ -285,16 +288,57 @@
       active = (active + dir + cells.length) % cells.length;
       paint();
     };
-    prev.addEventListener("click", function () { step(-1); });
-    next.addEventListener("click", function () { step(1); });
+
+    /* It walks itself through the screens, slowly, so the project reads as a
+       tour rather than one still with arrows nobody presses. Every reason to
+       stop is a reason someone is looking at it: the pointer is over it, it
+       has focus, the tab is in the background, it is off screen, or it is on
+       the page you are not on. Under reduced motion it holds still and the
+       arrows do the work. */
+    var DWELL = 4500;
+    var held = { hover: false, hidden: doc.hidden, off: true, away: false };
+    var owner = car.closest("main[data-page]");
+    var timer = 0;
+    var sync = function () {
+      win.clearInterval(timer);
+      timer = 0;
+      if (still || held.hover || held.hidden || held.off || held.away) return;
+      timer = win.setInterval(function () { step(1); }, DWELL);
+    };
+    var hold = function (key, on) { held[key] = on; sync(); };
+    /* A press restarts the dwell, so the next automatic move is a full beat
+       away rather than however long was left on the clock. */
+    var drive = function (dir) { step(dir); sync(); };
+
+    prev.addEventListener("click", function () { drive(-1); });
+    next.addEventListener("click", function () { drive(1); });
     car.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowLeft") { step(-1); e.preventDefault(); }
-      if (e.key === "ArrowRight") { step(1); e.preventDefault(); }
+      if (e.key === "ArrowLeft") { drive(-1); e.preventDefault(); }
+      if (e.key === "ArrowRight") { drive(1); e.preventDefault(); }
     });
+    car.addEventListener("pointerenter", function () { hold("hover", true); });
+    car.addEventListener("pointerleave", function () { hold("hover", false); });
+    car.addEventListener("focusin", function () { hold("hover", true); });
+    car.addEventListener("focusout", function () { hold("hover", false); });
+    doc.addEventListener("visibilitychange", function () { hold("hidden", doc.hidden); });
+    if ("IntersectionObserver" in win) {
+      new win.IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) { hold("off", !entry.isIntersecting); });
+      }, { threshold: 0.2 }).observe(car);
+    } else {
+      held.off = false;
+    }
+
     win.addEventListener("resize", paint, { passive: true });
     win.addEventListener("load", paint);
-    onPageShown.push(paint);
+    onPageShown.push(function () {
+      paint();
+      hold("away", !!owner && owner.getAttribute("data-page") !== current);
+    });
+    onStillChange.push(sync);
+    held.away = !!owner && owner.getAttribute("data-page") !== current;
     paint();
+    sync();
   });
 
   /* ---- Contact form ----------------------------------------------------- */
