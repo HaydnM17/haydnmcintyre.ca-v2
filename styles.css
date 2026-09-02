@@ -487,11 +487,18 @@ body.is-locked { overflow: hidden; }
 .sec { position: relative; padding: 200px var(--gutter) 0; }
 .sec-tight { padding-top: 40px; }
 main[data-page="portfolio"] .sec { padding-top: 180px; }
-/* The portfolio lands you on Websites: the intro is a masthead above it, not
-   a screen of its own, and the first project does not fly in because it is
-   already where you arrived. */
-main[data-page="portfolio"] .sec-intro { padding-top: 124px; }
-main[data-page="portfolio"] .sec-first { padding-top: 92px; }
+/* The portfolio opens on the bio and nothing else. The intro takes the whole
+   first screen, so Websites starts just below the fold and is still at nothing
+   when you land; a short scroll brings it in. Tying the height to the viewport
+   rather than a fixed number keeps that true on a short screen and a tall one,
+   because the approach threshold is a share of the viewport too. */
+main[data-page="portfolio"] .sec-intro {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+  padding-top: calc(var(--head-h) + 40px);
+  padding-bottom: 80px;
+}
 
 /* Every section's content sits in one panel that flies in from the vanishing
    point. The script writes transform, opacity and z-index every frame from
