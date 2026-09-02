@@ -29,7 +29,7 @@
       if (this._started) { this._resume(); return; }
       this._started = true;
       var self = this;
-      this._init().catch(function (e) { console.warn('space-scene: WebGL unavailable', e); });
+      this._init().catch(function (e) { console.warn('space-scene: WebGL unavailable', e); self.setAttribute('failed', ''); self.dispatchEvent(new CustomEvent('scene-failed')); });
     }
     disconnectedCallback() { this._pause(); }
     attributeChangedCallback(name) {
@@ -104,6 +104,8 @@
       this._reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       document.addEventListener('visibilitychange', function () { document.hidden ? self._pause() : self._resume(); });
       this._resume();
+      this.setAttribute('ready', '');
+      this.dispatchEvent(new CustomEvent('scene-ready'));
     }
 
     _glowTexture(THREE) {
