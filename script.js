@@ -386,6 +386,27 @@
     win.addEventListener("load", function () { scrollToAnchor(location.hash.slice(1), true); });
   }
 
+  /* ---- The rule under a section label -----------------------------------
+     Draws itself across once the label is on screen, and stays drawn. */
+  (function () {
+    var rules = Array.prototype.slice.call(
+      doc.querySelectorAll(".prose > .kicker, .pf-head .kicker, .services-grid > header .kicker")
+    );
+    if (!rules.length) return;
+    if (!("IntersectionObserver" in win)) {
+      rules.forEach(function (r) { r.classList.add("is-drawn"); });
+      return;
+    }
+    var watch = new win.IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-drawn");
+        watch.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -12% 0px" });
+    rules.forEach(function (r) { watch.observe(r); });
+  })();
+
   /* ---- Lightbox ---------------------------------------------------------
      A capture at full size over the page. Returns focus to whatever opened
      it, which for a carousel is the capture you clicked. */

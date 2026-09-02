@@ -433,6 +433,32 @@ body.is-locked { overflow: hidden; }
   text-transform: uppercase;
   color: var(--brass);
 }
+/* A brass rule under the section label, drawn across as the section arrives.
+   Without it "About" and "Hello" run together as one line of text. Only the
+   labels that sit above a heading get one: the project kickers name a stack
+   and a role, not a section, and a rule under those reads as a mistake. */
+.prose > .kicker,
+.pf-head .kicker,
+.services-grid > header .kicker {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 9px;
+}
+.prose > .kicker::after,
+.pf-head .kicker::after,
+.services-grid > header .kicker::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--brass), var(--brass-dim));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.85s var(--ease-out);
+}
+.prose > .kicker.is-drawn::after,
+.pf-head .kicker.is-drawn::after,
+.services-grid > header .kicker.is-drawn::after { transform: scaleX(1); }
+
 .h2 {
   margin: 0;
   font: 300 88px/0.85 var(--display);
