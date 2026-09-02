@@ -1,8 +1,11 @@
 /* <space-scene> — fixed full-viewport three.js backdrop for the revamp:
    a star/triangle constellation you travel through, two undulating wave grids, and the
    HM mark in brass (geometry from favicon.svg) that the camera flies straight through.
+   A second, smaller mark hangs off to one side for a page with no hero to fly
+   through: same geometry, same brass, passed at a distance rather than through.
    Attributes: scroll (px) · gate (px of scroll at which the camera passes through the mark)
-               stars (count) · glow (0–2) · waves (0–2 amplitude) · speed (sway, rad/s) */
+               stars (count) · glow (0–2) · waves (0–2 amplitude) · speed (sway, rad/s)
+               aside (0–1 of the side mark: full beside the opening screen, out once past it) */
 (function () {
   if (window.customElements.get('space-scene')) return;
   var THREE_SRC = './vendor/three.module.min.js';
@@ -15,10 +18,17 @@
   var GAP_X = -0.5;            // the corridor between the H and the M, in mark units
   var LIFT = 9;                // the mark rides high in frame so the copy sits below it
   var SPAN = 620;              // depth of the star tube that wraps around the camera
+  var A_D = 130;               // how far ahead of the camera the side mark hangs at full strength
+  var A_PASS = 55;             // how much of that it closes as you scroll past it
+  var A_W = 0.17, A_H = 0.22;  // its size, as a share of the frame (width, and a cap on height)
+  var A_X = 0.56, A_Y = 0.2;   // where it sits, as a share of the half frame, right of and above centre
+  var A_MIN = 760;             // below this viewport width there is no room beside the text
   var BRASS = 0xE5B457, BRASS_DIM = 0xB98C33, ELECTRIC = 0x3FD9C0, GROUND = 0x0A100E;
   var PALETTE = [[0.93,0.95,0.93],[0.93,0.95,0.93],[0.93,0.95,0.93],[0.25,0.85,0.75],[0.9,0.71,0.34],[0.2,0.6,0.47]];
 
   function num(el, name, d) { var v = parseFloat(el.getAttribute(name)); return isNaN(v) ? d : v; }
+  // A full turn that lingers facing front and whips through the back.
+  function turnOf(phi) { var f = phi - Math.floor(phi), f3 = f * f * f, g3 = (1 - f) * (1 - f) * (1 - f); return Math.PI * 2 * (Math.floor(phi) + f3 / (f3 + g3)); }
   function smooth(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
 
   class SpaceScene extends HTMLElement {
@@ -71,6 +81,21 @@
       scene.add(logo);
       this._logo = logo; this._gold = gold; this._haloMat = haloMat; this._glowMat = glowMat; this._lamp = lamp;
 
+      // The same mark again, small and off to the side, for a page with no hero
+      // to fly through. Same geometry and the same brass, but its own materials:
+      // it fades as you pass it, and its halo is dialled back so a mark this
+      // size does not bloom over the copy beside it.
+      var aMat = gold.clone(); aMat.transparent = true; aMat.fog = false;
+      var aHaloMat = haloMat.clone();
+      var aGlowMat = new THREE.SpriteMaterial({ map: glowMat.map, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+      var aGlow = new THREE.Sprite(aGlowMat); aGlow.scale.set(W * 3.2, W * 3.2, 1); aGlow.position.z = -DEPTH;
+      var aHalo = new THREE.Mesh(geo, aHaloMat); aHalo.scale.setScalar(1.045);
+      var aside = new THREE.Group();
+      aside.add(new THREE.Mesh(geo, aMat)); aside.add(aHalo); aside.add(aGlow);
+      aside.name = 'aside'; aside.visible = false;
+      scene.add(aside);
+      this._aside = aside; this._aMat = aMat; this._aHaloMat = aHaloMat; this._aGlowMat = aGlowMat;
+
       // Lights: a warm key, cool fill from the teal side, rim from behind
       var key = new THREE.DirectionalLight(0xfff1d6, 2.6); key.position.set(-40, 50, 70); scene.add(key);
       var fill = new THREE.DirectionalLight(ELECTRIC, 0.7); fill.position.set(60, -20, 40); scene.add(fill);
@@ -97,6 +122,12 @@
         var tan = Math.tan(camera.fov * Math.PI / 360);
         var dW = (W / 0.56) / (2 * tan * camera.aspect), dH = (HGT / 0.4) / (2 * tan);
         self._d0 = Math.max(dW, dH);
+        // The side mark is measured off the frame too, so it keeps the same
+        // corner and the same share of the screen at any size.
+        var aH = A_D * tan, aW = aH * camera.aspect;
+        self._aHalfW = aW; self._aHalfH = aH;
+        self._aScale = Math.min((A_W * 2 * aW) / W, (A_H * 2 * aH) / HGT);
+        self._aRoom = w >= A_MIN;
         camera.updateProjectionMatrix();
       };
       this._frame();
@@ -147,6 +178,7 @@
       this._gold.emissiveIntensity = 0.42 * k;
       this._haloMat.opacity = 0.2 * k;
       this._glowMat.opacity = 0.85 * k;
+      if (this._aMat) this._aMat.emissiveIntensity = 0.42 * k;
       this._lamp.intensity = 3200 * k;
     }
     _wave(mesh, t, camX, camZ) {
@@ -186,14 +218,35 @@
       // and freezes before the square-up begins, so the fly-through target is always stable.
       var spinGate = 1 - smooth(Math.min(1, e / 0.5));
       this._phi = (this._phi || 0) + dt * sway * 0.16 * spinGate;
-      var f = this._phi - Math.floor(this._phi), f3 = f * f * f, g3 = (1 - f) * (1 - f) * (1 - f);
-      var turn = Math.PI * 2 * (Math.floor(this._phi) + f3 / (f3 + g3));
+      var turn = turnOf(this._phi);
       if (e > 0.5) { if (this._front == null) this._front = Math.round(turn / (Math.PI * 2)) * Math.PI * 2; } else this._front = null;
       var sq = smooth(Math.max(0, (e - 0.5) / 0.5));
       logo.rotation.y = (this._front == null ? turn : turn + (this._front - turn) * sq) + 0.35 * Math.sin(t * sway) * (1 - e);
       logo.rotation.x = (0.22 + 0.2 * Math.sin(t * sway * 0.7)) * (1 - e);
       logo.rotation.z = 0.16 * Math.sin(t * sway * 0.45 + 1.2) * (1 - e);
       logo.visible = camZ > -this._d0 - 40;
+
+      // The side mark hangs beside the opening screen of a page with no hero,
+      // turning the way the big one does, only smaller and lazier. The page
+      // hands it a strength that runs out as you scroll in: it draws closer as
+      // it goes, so it drifts wide of the frame and fades rather than sitting
+      // over the work. Perspective does the sliding; only the distance moves.
+      var aside = this._aside, ak = smooth(num(this, 'aside', 0));
+      if (aside) {
+        aside.visible = ak > 0.004 && this._aRoom;
+        if (aside.visible) {
+          var gk = num(this, 'glow', 1);
+          this._aMat.opacity = ak;
+          this._aHaloMat.opacity = 0.2 * gk * ak;
+          this._aGlowMat.opacity = 0.5 * gk * ak;
+          this._aPhi = (this._aPhi || 0) + dt * sway * 0.11;
+          aside.scale.setScalar(this._aScale);
+          aside.position.set(GAP_X + this._aHalfW * A_X, this._aHalfH * (A_Y + 0.045 * Math.sin(t * 0.55)), camZ - A_D + (1 - ak) * A_PASS);
+          aside.rotation.y = turnOf(this._aPhi);
+          aside.rotation.x = 0.16 + 0.12 * Math.sin(t * sway * 0.7);
+          aside.rotation.z = 0.1 * Math.sin(t * sway * 0.45 + 1.2);
+        }
+      }
 
       // Stars drift toward you even at rest; faster travel makes them bigger, like streaks.
       var arr = this._stars.geometry.attributes.position.array, drift = this._reduce ? 0 : 7 * dt;
