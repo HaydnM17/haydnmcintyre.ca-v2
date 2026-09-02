@@ -241,9 +241,11 @@
   var hero = doc.getElementById("top");
   var beats = [
     /* element, start, end, lift in px, whether it takes clicks */
-    [doc.getElementById("hero-kicker"), 0.05, 0.26, 24, false],
+    /* Outward from the name: whatever sits furthest from it goes first, so
+       the two lines of the title are the last thing left as you approach. */
+    [doc.getElementById("hero-ctas"),   0.05, 0.26, 24, true],
     [doc.getElementById("hero-lede"),   0.09, 0.30, 24, false],
-    [doc.getElementById("hero-ctas"),   0.13, 0.34, 24, true],
+    [doc.getElementById("hero-kicker"), 0.13, 0.34, 24, false],
     [doc.getElementById("hero-title"),  0.24, 0.52, 56, false],
     [doc.getElementById("hero-ann"),    0.28, 0.46, 0,  false]
   ];

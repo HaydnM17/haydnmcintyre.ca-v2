@@ -582,7 +582,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   pointer-events: none;
 }
 .hero-kicker {
-  margin: 0 0 26px;
+  margin: 24px 0 0;
   display: inline-flex; align-items: center; gap: 10px;
   padding: 9px 15px;
   border-radius: 9999px;
@@ -592,7 +592,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--brass);
-  animation: in-pop 1.05s var(--ease-out) 0.22s both;
+  animation: in-pop 1.05s var(--ease-out) 0.74s both;
 }
 .hero-kicker svg { height: 11px; width: auto; display: block; }
 .hero-title {
@@ -618,7 +618,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   letter-spacing: 0.01em;
   color: var(--mist);
   text-shadow: 0 1px 18px rgba(10, 16, 14, 0.9);
-  animation: in-soft 1.25s var(--ease-out) 0.82s both;
+  animation: in-soft 1.25s var(--ease-out) 0.88s both;
 }
 .hero-lede em { font-style: normal; color: var(--brass); }
 .hero-ctas {
