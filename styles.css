@@ -500,6 +500,11 @@ main[data-page="portfolio"] .sec-intro {
   padding-bottom: 80px;
 }
 
+/* A clear run of empty space under the bio before the first project, so
+   Websites is nowhere near the opening screen and arrives on its own. In
+   viewport units because the approach threshold is one too. */
+main[data-page="portfolio"] #websites { padding-top: 34vh; }
+
 /* Every section's content sits in one panel that flies in from the vanishing
    point. The script writes transform, opacity and z-index every frame from
    scroll position; nothing here should fight it. */
