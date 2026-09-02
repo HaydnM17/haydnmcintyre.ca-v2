@@ -17,3 +17,7 @@ design_handoff/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Headless capture harnesses, made and deleted by the screenshot recipe
+_cap*.html
+_mob-*.html
