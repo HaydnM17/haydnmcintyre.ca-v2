@@ -74,9 +74,24 @@
     return true;
   };
 
+  /* A section's box begins at its top padding, and that padding is large on
+     purpose: 180px everywhere, and a third of a screen above Websites so it is
+     nowhere near the opening. Aiming at the box therefore stopped a screen or
+     two short of the thing being linked to, worst of all for Websites. Aim at
+     the panel that holds the content instead, and leave the fixed header its
+     own height plus a little air. */
   var scrollToAnchor = function (anchor, instant) {
     var el = anchor ? doc.getElementById(anchor) : null;
-    var top = el ? el.getBoundingClientRect().top + win.scrollY - 60 : 0;
+    var top = 0;
+    if (el) {
+      /* The panel carries a 3D transform until it lands, and a rect is the
+         transformed box, so it cannot be measured directly. Its offsetTop is
+         layout and is not affected, so read it off the section, which is
+         never transformed. The scroll tick does the same thing. */
+      var panel = el.querySelector(":scope > .approach");
+      var base = el.getBoundingClientRect().top + win.scrollY;
+      top = base + (panel ? panel.offsetTop : 0) - 110;
+    }
     win.scrollTo({ top: Math.max(0, top), behavior: still || instant ? "auto" : "smooth" });
   };
 
