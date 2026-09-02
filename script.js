@@ -107,6 +107,36 @@
 
   show(pageFromLocation());
 
+  /* ---- Nav highlighting -------------------------------------------------
+     The link for wherever you are. On the portfolio page that is Portfolio
+     however far you have scrolled; on the home page it follows the section
+     in view. The Contact button is left alone, it is already brass. */
+  var navLinks = Array.prototype.slice.call(doc.querySelectorAll(".nav a[data-sec]"));
+  var setCurrent = function (id) {
+    navLinks.forEach(function (a) {
+      a.classList.toggle("is-current", a.getAttribute("data-sec") === id);
+    });
+  };
+  var syncCurrent = function () {
+    if (current === "portfolio") setCurrent("portfolio");
+    else setCurrent(win.scrollY < win.innerHeight * 0.6 ? "top" : "");
+  };
+  if (navLinks.length && "IntersectionObserver" in win) {
+    var spy = new win.IntersectionObserver(function (entries) {
+      if (current !== "home") return;
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) setCurrent(entry.target.id);
+      });
+    }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+    navLinks.forEach(function (a) {
+      var sec = doc.getElementById(a.getAttribute("data-sec"));
+      /* Portfolio also names a whole page; only watch it as a section here. */
+      if (sec && sec.closest('main[data-page="home"]')) spy.observe(sec);
+    });
+  }
+  onPageShown.push(syncCurrent);
+  syncCurrent();
+
   /* ---- The scene ------------------------------------------------------- */
   var scene = doc.querySelector("space-scene");
   var fallback = doc.getElementById("mark-fallback");

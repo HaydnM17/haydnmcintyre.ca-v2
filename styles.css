@@ -44,6 +44,9 @@
 
 html {
   background: var(--ground);
+  color-scheme: dark;
+  scrollbar-color: #2C3D34 var(--ground);
+  scrollbar-width: thin;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
@@ -67,6 +70,13 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   outline-offset: 3px;
 }
 ::selection { background: var(--brass); color: var(--ink); }
+
+/* The scrollbar is part of the furniture: a dark rail rather than the
+   browser's default light one over a green-black page. */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--ground); }
+::-webkit-scrollbar-thumb { background: #2C3D34; border: 3px solid var(--ground); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brass-dim); }
 
 /* Both pages live in one document. A two line script in the head picks the
    page from the URL before anything paints; without it, both read top to
@@ -203,6 +213,17 @@ html[data-page="portfolio"] .mark-fallback { display: none; }
 }
 .nav > a:not(.btn):hover, .nav-drop > a:hover,
 .nav > a:not(.btn):focus-visible, .nav-drop > a:focus-visible { color: var(--chalk); }
+
+/* The link for wherever you are, underlined in brass. */
+.nav a[data-sec]:not(.btn) { position: relative; }
+.nav a[data-sec]:not(.btn)::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 1px; background: var(--brass);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 0.3s var(--ease-out);
+}
+.nav a[data-sec]:not(.btn).is-current { color: var(--chalk); }
+.nav a[data-sec]:not(.btn).is-current::after { transform: scaleX(1); transform-origin: left; }
 
 .nav-drop { position: relative; display: flex; align-items: center; }
 .drop-wrap {
@@ -611,8 +632,7 @@ main[data-page="portfolio"] .sec { padding-top: 180px; }
   padding: 36px;
   border-radius: 20px;
   border: 1px solid rgba(236, 241, 236, 0.14);
-  background: linear-gradient(135deg, rgba(19, 30, 26, 0.75), rgba(10, 16, 14, 0.55));
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  background: linear-gradient(135deg, rgba(19, 30, 26, 0.94), rgba(10, 16, 14, 0.9));
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45);
 }
 .field { display: grid; gap: 8px; }

@@ -57,9 +57,10 @@
     <span>Haydn McIntyre</span>
   </a>
   <nav class="nav" aria-label="Main">
-    <a class="nav-home" href="/" data-go="home">Home</a>
+    <a class="nav-home" href="/" data-go="home" data-sec="top">Home</a>
+    <a class="nav-about" href="/#about" data-go="home:about" data-sec="about">About</a>
     <div class="nav-drop">
-      <a href="/portfolio" data-go="portfolio">Portfolio</a>
+      <a href="/portfolio" data-go="portfolio" data-sec="portfolio">Portfolio</a>
       <div class="drop-wrap">
         <div class="drop-panel">
           <a href="/portfolio#websites" data-go="portfolio:websites">Websites</a>
@@ -69,9 +70,8 @@
         </div>
       </div>
     </div>
-    <a class="nav-about" href="/#about" data-go="home:about">About</a>
-    <a class="nav-services" href="/#services" data-go="home:services">Services</a>
-    <a class="btn btn-brass btn-sm" href="/#contact" data-go="home:contact">Contact<span class="sheen" aria-hidden="true"></span></a>
+    <a class="nav-services" href="/#services" data-go="home:services" data-sec="services">Services</a>
+    <a class="btn btn-brass btn-sm" href="/#contact" data-go="home:contact" data-sec="contact">Contact<span class="sheen" aria-hidden="true"></span></a>
   </nav>
 </header>
 
@@ -90,8 +90,8 @@
         </h1>
         <p class="hero-lede" id="hero-lede" data-settle><span>Websites</span><em>·</em><span>Web apps</span><em>·</em><span>Mobile apps</span></p>
         <div class="hero-ctas" id="hero-ctas">
-          <a class="btn" href="/portfolio" data-go="portfolio" data-settle>Portfolio</a>
           <a class="btn" href="/#about" data-go="home:about" data-settle>About</a>
+          <a class="btn" href="/portfolio" data-go="portfolio" data-settle>Portfolio</a>
           <a class="btn" href="/#services" data-go="home:services" data-settle>Services</a>
           <a class="btn btn-brass" href="/#contact" data-go="home:contact" data-settle>Contact<span class="sheen" aria-hidden="true"></span></a>
         </div>
@@ -103,8 +103,42 @@
     </div>
   </section>
 
-  <section class="sec sec-tight" id="portfolio">
-    <div class="approach" data-approach="1.15">
+  <section class="sec sec-tight" id="about">
+    <div class="approach about-grid" data-approach="1.15">
+      <div class="prose">
+        <p class="kicker">About</p>
+        <h2 class="h2">Hello</h2>
+        <p class="lead">My name is Haydn McIntyre. I am a software developer and website designer, and I graduated from Niagara College in 2026.</p>
+        <p>I build websites, web applications and mobile apps for businesses, fully customized and made for exactly what they need. I can take on the whole process: from first ideas to the design through building it to getting it live and shipped.</p>
+        <p>You can see some of my work on the portfolio page, and if there is any work I can do for you, get in contact through the section below.</p>
+        <div class="btn-row">
+          <a class="btn" href="/portfolio" data-go="portfolio">See the portfolio</a>
+          <a class="btn btn-brass" href="/#contact" data-go="home:contact">Get in touch<span class="sheen" aria-hidden="true"></span></a>
+        </div>
+      </div>
+      <dl class="facts">
+        <div>
+          <dt>Graduated</dt>
+          <dd>Computer Programming &amp; Analysis <small>Niagara College, 2026</small></dd>
+        </div>
+        <div>
+          <dt>Based in</dt>
+          <dd>Niagara, Ontario</dd>
+        </div>
+        <div>
+          <dt>Building with</dt>
+          <dd>HTML, CSS &amp; JavaScript, C# &amp; .NET, SQL</dd>
+        </div>
+        <div>
+          <dt>Code</dt>
+          <dd><a href="https://github.com/HaydnM17" rel="noopener">github.com/HaydnM17</a></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec" id="portfolio">
+    <div class="approach" data-approach>
       <div class="pf-head">
         <div>
           <p class="kicker">Portfolio</p>
@@ -151,40 +185,6 @@
           <p class="pv-name">Workout Tracker</p>
         </a>
       </div>
-    </div>
-  </section>
-
-  <section class="sec" id="about">
-    <div class="approach about-grid" data-approach>
-      <div class="prose">
-        <p class="kicker">About</p>
-        <h2 class="h2">Hello</h2>
-        <p class="lead">My name is Haydn McIntyre. I am a software developer and website designer, and I graduated from Niagara College in 2026.</p>
-        <p>I build websites, web applications and mobile apps for businesses, fully customized and made for exactly what they need. I can take on the whole process: from first ideas to the design through building it to getting it live and shipped.</p>
-        <p>You can see some of my work on the portfolio page, and if there is any work I can do for you, get in contact through the section below.</p>
-        <div class="btn-row">
-          <a class="btn" href="/portfolio" data-go="portfolio">See the portfolio</a>
-          <a class="btn btn-brass" href="/#contact" data-go="home:contact">Get in touch<span class="sheen" aria-hidden="true"></span></a>
-        </div>
-      </div>
-      <dl class="facts">
-        <div>
-          <dt>Graduated</dt>
-          <dd>Computer Programming &amp; Analysis <small>Niagara College, 2026</small></dd>
-        </div>
-        <div>
-          <dt>Based in</dt>
-          <dd>Niagara, Ontario</dd>
-        </div>
-        <div>
-          <dt>Building with</dt>
-          <dd>HTML, CSS &amp; JavaScript, C# &amp; .NET, SQL</dd>
-        </div>
-        <div>
-          <dt>Code</dt>
-          <dd><a href="https://github.com/HaydnM17" rel="noopener">github.com/HaydnM17</a></dd>
-        </div>
-      </dl>
     </div>
   </section>
 
