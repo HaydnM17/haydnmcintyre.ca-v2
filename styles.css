@@ -670,7 +670,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .preview:hover { color: var(--chalk); }
 .pv-stage { height: var(--H); display: flex; align-items: flex-end; justify-content: center; gap: 16px; }
 .pv-web { width: calc(1.794 * var(--H) + 16px); }
-.pv-app { width: calc(1.4286 * var(--H)); align-items: center; }
+.pv-app { width: calc(1.4286 * var(--H)); align-items: flex-end; }
 .pv-mob { width: calc(0.45 * var(--H)); }
 /* Titles centre under the preview without widening it. */
 .pv-title, .pv-name {
