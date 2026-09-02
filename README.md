@@ -63,7 +63,9 @@ under `functions/` into a live endpoint at deploy time, so there is still no
 build step. It mails the message through Cloudflare's own sending API, which is
 free when the recipient is a verified Email Routing destination on the same
 account. It is switched on with four environment variables on the Pages project,
-listed in the comment at the top of the file. Until they are set the endpoint
+listed in the comment at the top of the file, and they are set: the form sends.
+They belong to the project rather than the domain, and only take effect on a
+deployment made after they are saved. With any of them missing the endpoint
 answers 501 and the form falls back to opening the visitor's mail app, so it is
 never a dead end and nothing has to be configured for the site to ship.
 
