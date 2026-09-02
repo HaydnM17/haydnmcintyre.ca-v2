@@ -1165,4 +1165,20 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .hero-ann { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
   .carousel { --cw: 82vw; }
   .carousel-wk { --cw: 52vw; }
+
+  /* Buttons that wrap line up with the ones above them. Centred and left to
+     their own widths, a dropped button sat wherever its label happened to end:
+     the four hero links broke three and one, and the brass Contact landed in
+     mid-air under the gap between Portfolio and Services. Two even columns
+     hold the hero as a block, and a pair under a project carries the full
+     width across, so a second row reads as part of the first rather than as
+     something loose under it. A row with one button in it can never wrap, so
+     it is left at the size it was drawn at. */
+  .hero-ctas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 340px);
+    margin-inline: auto;
+  }
+  .btn-row:has(> .btn + .btn) > .btn { flex: 1 1 auto; }
 }
