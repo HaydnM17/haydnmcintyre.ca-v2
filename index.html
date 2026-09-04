@@ -6,10 +6,19 @@
 <title>Haydn McIntyre, Full Stack Developer</title>
 <meta name="description" content="Haydn McIntyre, full stack developer. Fully customized websites, web apps, and the software behind them.">
 <meta name="theme-color" content="#0A100E">
+<link rel="canonical" href="https://haydnmcintyre.ca/">
 <meta property="og:title" content="Haydn McIntyre, Full Stack Developer">
 <meta property="og:description" content="Fully customized websites, web apps, and the software behind them.">
 <meta property="og:url" content="https://haydnmcintyre.ca/">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Haydn McIntyre">
+<meta property="og:locale" content="en_CA">
+<meta property="og:image" content="https://haydnmcintyre.ca/og.jpg?v=22">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The brass HM mark hanging in a starfield, over the name Haydn McIntyre, full stack developer.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg?v=9" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png?v=9" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=9">
@@ -17,10 +26,145 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300..500&display=swap">
-<link rel="stylesheet" href="styles.css?v=21">
+<link rel="stylesheet" href="styles.css?v=22">
 <link rel="modulepreload" href="vendor/three.module.min.js">
 <link rel="modulepreload" href="vendor/three.core.min.js">
 <script>document.documentElement.className += " js booting";document.documentElement.setAttribute("data-page", /^\/portfolio\/?$/.test(location.pathname) || /[?&]p=portfolio\b/.test(location.search) ? "portfolio" : "home");</script>
+<!-- Structured data. Tells search engines that the site, the person and the
+     work are one entity, which is what puts a name in a knowledge panel rather
+     than a bare blue link. The offers mirror the Services section exactly:
+     schema that claims more than the page shows is treated as spam. No email
+     and no phone in here on purpose, the address is assembled at runtime in
+     script.js so scrapers reading the raw HTML still find nothing. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://haydnmcintyre.ca/#haydn",
+      "name": "Haydn McIntyre",
+      "givenName": "Haydn",
+      "familyName": "McIntyre",
+      "url": "https://haydnmcintyre.ca/",
+      "image": "https://haydnmcintyre.ca/og.jpg",
+      "jobTitle": "Full Stack Developer",
+      "description": "Full stack developer in Niagara, Ontario, building fully customized websites, web applications and mobile apps for businesses.",
+      "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "Niagara College",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": "ON",
+          "addressCountry": "CA"
+        }
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Niagara",
+        "addressRegion": "ON",
+        "addressCountry": "CA"
+      },
+      "knowsAbout": [
+        "Web development",
+        "Web design",
+        "Responsive design",
+        "Web accessibility",
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "C#",
+        "ASP.NET Core",
+        "SQL",
+        "Entity Framework",
+        ".NET MAUI"
+      ],
+      "sameAs": ["https://github.com/HaydnM17"]
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://haydnmcintyre.ca/#practice",
+      "name": "Haydn McIntyre",
+      "url": "https://haydnmcintyre.ca/",
+      "image": "https://haydnmcintyre.ca/og.jpg",
+      "description": "Custom websites, web applications and mobile apps, designed and built for businesses in Niagara, Ontario, and hosted and looked after afterwards.",
+      "founder": { "@id": "https://haydnmcintyre.ca/#haydn" },
+      "employee": { "@id": "https://haydnmcintyre.ca/#haydn" },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Niagara",
+        "addressRegion": "ON",
+        "addressCountry": "CA"
+      },
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "Niagara Region, Ontario" },
+        { "@type": "AdministrativeArea", "name": "Ontario, Canada" }
+      ],
+      "serviceType": [
+        "Website design and development",
+        "Web application development",
+        "Mobile app development",
+        "Website hosting and domain setup",
+        "Website maintenance"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Websites",
+              "description": "Working out what the site has to do, designing it around that, building it, and getting it live on your own domain. Made to load fast, work properly on a phone, and show up when someone searches your business name."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Web applications",
+              "description": "Software that runs in the browser rather than a page you only read. Accounts and logins, records kept in one place, bookings, and reporting."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mobile apps",
+              "description": "Apps for phones, made for exactly what you need, planned, designed, built and made ready to ship."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Hosting and domain",
+              "description": "Hosting, your domain, and the security certificate, set up and kept running."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Ongoing maintenance",
+              "description": "Changes when you want them, updates, and anything that goes wrong, or a clean handover if you would rather run it yourself."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://haydnmcintyre.ca/#site",
+      "url": "https://haydnmcintyre.ca/",
+      "name": "Haydn McIntyre",
+      "inLanguage": "en-CA",
+      "publisher": { "@id": "https://haydnmcintyre.ca/#haydn" }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -552,7 +696,7 @@
 <div class="boot" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<script src="space-scene.js?v=21" defer></script>
-<script src="script.js?v=21" defer></script>
+<script src="space-scene.js?v=22" defer></script>
+<script src="script.js?v=22" defer></script>
 </body>
 </html>

@@ -21,6 +21,9 @@ is vendored as two files so that stays true.
 | `vendor/three.core.min.js` | The other half of the same build; `three.module.min.js` imports it |
 | `functions/api/contact.js` | Contact form endpoint, deployed by Cloudflare Pages |
 | `_redirects` | Serves `index.html` at `/portfolio`, and points the old `portfolio.html` at it |
+| `robots.txt` | Opens the site to crawlers, keeps them off `/api/`, points at the sitemap |
+| `sitemap.xml` | The two URLs the site has |
+| `og.jpg` | The 1200x630 card that shows when a link to the site is shared |
 | `assets/work/` | Project screenshots |
 
 ## Running it
@@ -68,6 +71,25 @@ They belong to the project rather than the domain, and only take effect on a
 deployment made after they are saved. With any of them missing the endpoint
 answers 501 and the form falls back to opening the visitor's mail app, so it is
 never a dead end and nothing has to be configured for the site to ship.
+
+**Search engines and shared links.** `index.html` carries a canonical URL, the
+Open Graph and Twitter card tags, and a block of JSON-LD describing the person,
+the practice and the site. Both pages are one document served at two paths, so
+the title, description, canonical and `og:url` all move together when the page
+switches; that lives in `applyMeta` at the top of `script.js` and is the only
+place any of it is written. `?p=portfolio` canonicalises to `/portfolio`, so the
+two forms of the same page are never read as duplicates.
+
+Two things are by hand, because there is no build step to stamp them: the
+`lastmod` dates in `sitemap.xml`, and `og.jpg` itself. The card is a real
+screenshot of the hero at 1200x630 with `?still=1` set and the header, the
+section arrows and the hero buttons hidden. Re-shoot it if the hero changes, and
+bump the `?v=` on the `og:image` tag when you do, or the networks will keep
+serving the copy they cached.
+
+The JSON-LD deliberately carries no email, no phone and no prices. The offers in
+it match the Services section word for word: structured data that claims more
+than the page shows is treated as spam rather than as a bonus.
 
 **The email address is never in the markup.** `script.js` assembles it at
 runtime and fills any element marked `data-mail`, so scrapers reading the raw

@@ -1,0 +1,9 @@
+# haydnmcintyre.ca
+# Everything is public and worth indexing except the contact endpoint, which is
+# a POST handler with nothing to crawl.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://haydnmcintyre.ca/sitemap.xml

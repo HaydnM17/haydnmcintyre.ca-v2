@@ -38,10 +38,40 @@
     home: doc.getElementById("home"),
     portfolio: doc.getElementById("portfolio-page")
   };
-  var titles = {
-    home: "Haydn McIntyre, Full Stack Developer",
-    portfolio: "Haydn McIntyre Portfolio"
+  /* Title, description and canonical URL per page. Both pages are one
+     document, so switching between them has to move all three or the two
+     URLs look like duplicates of each other to a crawler and only one of
+     them gets indexed. ?p=portfolio points at the clean /portfolio for the
+     same reason. */
+  var SITE = "https://haydnmcintyre.ca";
+  var meta = {
+    home: {
+      title: "Haydn McIntyre, Full Stack Developer",
+      description: "Haydn McIntyre, full stack developer. Fully customized websites, web apps, and the software behind them.",
+      canonical: SITE + "/"
+    },
+    portfolio: {
+      title: "Haydn McIntyre Portfolio",
+      description: "Websites, web applications and mobile apps designed and built by Haydn McIntyre, with the stack behind each one and exactly what I was responsible for.",
+      canonical: SITE + "/portfolio"
+    }
   };
+
+  var setMeta = function (selector, attr, value) {
+    var el = doc.head.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+  };
+
+  var applyMeta = function (page) {
+    var m = meta[page];
+    doc.title = m.title;
+    setMeta('link[rel="canonical"]', "href", m.canonical);
+    setMeta('meta[name="description"]', "content", m.description);
+    setMeta('meta[property="og:title"]', "content", m.title);
+    setMeta('meta[property="og:description"]', "content", m.description);
+    setMeta('meta[property="og:url"]', "content", m.canonical);
+  };
+
   var current = null;
 
   var pageFromLocation = function () {
@@ -73,7 +103,7 @@
     if (page === current) return false;
     current = page;
     root.setAttribute("data-page", page);
-    doc.title = titles[page];
+    applyMeta(page);
     onPageShown.forEach(function (fn) { fn(); });
     return true;
   };
