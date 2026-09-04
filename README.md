@@ -24,7 +24,7 @@ is vendored as two files so that stays true.
 | `robots.txt` | Opens the site to crawlers, keeps them off `/api/`, points at the sitemap |
 | `sitemap.xml` | The two URLs the site has |
 | `og.jpg` | The 1200x630 card that shows when a link to the site is shared |
-| `assets/work/` | Project screenshots |
+| `assets/work/` | Project screenshots, WebP |
 
 ## Running it
 
@@ -71,6 +71,30 @@ They belong to the project rather than the domain, and only take effect on a
 deployment made after they are saved. With any of them missing the endpoint
 answers 501 and the form falls back to opening the visitor's mail app, so it is
 never a dead end and nothing has to be configured for the site to ship.
+
+**What loads, and when.** The page used to pull about 3.6 MB before it settled,
+most of it before anything was readable. Three things fixed that, and all three
+are easy to undo by accident:
+
+Every screenshot on the portfolio page carries `loading="lazy"`. Both pages are
+one document and the one you are not on is `display:none`, but that does not
+stop an image loading, it only stops it being drawn. Without the attribute every
+visitor to the home page downloaded the whole portfolio carousel, 1.7 MB of
+screenshots most of them never saw. When adding a project, copy the attribute.
+
+The screenshots are WebP, about half the size of the JPEGs they replaced at the
+same quality. `og.jpg` is deliberately still a JPEG: several social scrapers
+still do not take WebP, and the card is the one image whose whole job is being
+read by them. New captures are converted once, by hand, and committed as WebP.
+Nothing converts at deploy time and there is still no build step.
+
+`space-scene.js` does not fetch three.js until the browser goes idle, and does
+not fetch it at all when the connection reports data saver, 2g, or a device with
+1 GB of memory. Those cases get the static brass mark, which is the same thing a
+machine without WebGL already got, so nothing new had to be written to handle
+them. The `modulepreload` hints in the head were removed for the same reason:
+they told the preload scanner to pull 732 KB of vendor code while the stylesheet,
+the fonts and the first screenshots were still queued behind it.
 
 **Search engines and shared links.** `index.html` carries a canonical URL, the
 Open Graph and Twitter card tags, and a block of JSON-LD describing the person,

@@ -12,6 +12,28 @@
   var threeP = null;
   function loadThree() { return threeP || (threeP = import(THREE_SRC)); }
 
+  // three.js is about 190 KB gzipped to draw a backdrop. On a metered or very
+  // slow connection that is a bad trade, so it is never asked for: the static
+  // brass mark that already covers a machine without WebGL covers this too.
+  function tooExpensive() {
+    var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (c) {
+      if (c.saveData) return true;
+      if (/^(slow-2g|2g)$/.test(c.effectiveType || '')) return true;
+    }
+    return (navigator.deviceMemory || 8) <= 1;
+  }
+
+  // Decoration waits its turn. Without this the preload scanner pulled both
+  // vendor files while the stylesheet, the fonts and the first screenshots were
+  // still queued, which is the wrong order on a phone: the page is readable
+  // before the scene matters.
+  function whenIdle(fn) {
+    if (window.requestIdleCallback) { requestIdleCallback(fn, { timeout: 1200 }); return; }
+    if (document.readyState === 'complete') { setTimeout(fn, 120); return; }
+    window.addEventListener('load', function () { setTimeout(fn, 120); }, { once: true });
+  }
+
   var H = [[1,6],[5,6],[5,15],[13,15],[13,6],[17,6],[17,28],[13,28],[13,19],[5,19],[5,28],[1,28]];
   var M = [[21,6],[25,6],[25,7.45],[29.5,15.07],[34,7.45],[34,6],[38,6],[38,28],[34,28],[34,15.31],[29.5,22.93],[25,15.31],[25,28],[21,28]];
   var CX = 19.5, CY = 17, W = 37, HGT = 22, DEPTH = 6.5;
@@ -41,7 +63,17 @@
       if (this._started) { this._resume(); return; }
       this._started = true;
       var self = this;
-      this._init().catch(function (e) { console.warn('space-scene: WebGL unavailable', e); self.setAttribute('failed', ''); self.dispatchEvent(new CustomEvent('scene-failed')); });
+      // Same signal as a machine with no WebGL, so script.js and the stylesheet
+      // need to know nothing about why the scene is not coming.
+      if (tooExpensive()) { this._down('space-scene: skipped, data saver or a very slow connection'); return; }
+      whenIdle(function () {
+        self._init().catch(function (e) { self._down('space-scene: WebGL unavailable', e); });
+      });
+    }
+    _down(msg, e) {
+      console.warn(msg, e || '');
+      this.setAttribute('failed', '');
+      this.dispatchEvent(new CustomEvent('scene-failed'));
     }
     disconnectedCallback() { this._pause(); }
     attributeChangedCallback(name) {
