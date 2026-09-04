@@ -41,7 +41,7 @@
   var LIFT = 9;                // the mark rides high in frame so the copy sits below it
   var SPAN = 620;              // depth of the star tube that wraps around the camera
   var A_D = 130;               // how far ahead of the camera the side mark hangs at full strength
-  var A_PASS = 18;             // how much of that it closes on the way out
+  var A_PASS = 65;             // how much of that it closes on the way out: it comes at you as it goes
   var A_W = 0.21, A_H = 0.26;  // its size, as a share of the frame (width, and a cap on height)
   var A_X = 0.42, A_Y = 0.2;   // where it sits, as a share of the half frame, right of and above centre
   var A_RISE = 1;              // half frames it climbs on the way out: enough to clear the top
@@ -272,6 +272,12 @@
       // top of the frame with that copy rather than hanging on over the work.
       // The rise tracks the raw strength, so it keeps pace with the scroll;
       // only the fade is eased, and it waits until the mark is well on its way.
+      //
+      // It closes on the camera the whole time it is leaving, so it swells and
+      // swings wide as it fades. The rise is measured out at the distance it
+      // started from and then scaled back by how much of that is left, which
+      // takes the swell out of the climb alone: it comes at you, but it still
+      // goes up the frame at the speed of the copy beside it.
       var aside = this._aside, ar = Math.max(0, Math.min(1, num(this, 'aside', 0)));
       var ak = smooth(Math.min(1, ar / 0.5));
       if (aside) {
@@ -282,8 +288,9 @@
           this._aHaloMat.opacity = 0.2 * gk * ak;
           this._aGlowMat.opacity = 0.5 * gk * ak;
           this._aPhi = (this._aPhi || 0) + dt * sway * 0.11;
+          var dist = A_D - (1 - ar) * A_PASS, near = dist / A_D;
           aside.scale.setScalar(this._aScale);
-          aside.position.set(GAP_X + this._aHalfW * this._aXf, this._aHalfH * (A_Y + (1 - ar) * A_RISE + 0.045 * Math.sin(t * 0.55)), camZ - A_D + (1 - ar) * A_PASS);
+          aside.position.set(GAP_X + this._aHalfW * this._aXf, this._aHalfH * (A_Y + (1 - ar) * A_RISE + 0.045 * Math.sin(t * 0.55)) * near, camZ - dist);
           aside.rotation.y = turnOf(this._aPhi);
           aside.rotation.x = 0.16 + 0.12 * Math.sin(t * sway * 0.7);
           aside.rotation.z = 0.1 * Math.sin(t * sway * 0.45 + 1.2);
