@@ -30,6 +30,41 @@
   var year = doc.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
 
+  /* ---- Analytics --------------------------------------------------------
+     Cloudflare Web Analytics. No cookies, nothing stored on the visitor and
+     no consent banner needed, which is why it is this one rather than
+     Google's. It reports page views, referrers and the real load timings
+     from actual visitors rather than from a test on a fast connection.
+
+     To switch it on: Cloudflare dashboard > Web Analytics > add the site,
+     then copy the token out of the snippet it hands you (the value of
+     "token" in the data-cf-beacon attribute) and paste it between the
+     quotes below. Nothing else has to change and there is nothing to
+     install.
+
+     Left empty the beacon is never requested at all, so the site ships
+     without it rather than shipping a broken one. It is skipped on
+     localhost and on file:// too, so opening the page while working on it
+     does not turn up in the numbers.
+
+     The beacon waits for the browser to go idle, for the same reason the
+     scene does: measuring the page must not be the thing that slows it. */
+  var analyticsToken = "";
+
+  var localHost = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  if (analyticsToken && !isFile && !localHost) {
+    var beacon = function () {
+      var el = doc.createElement("script");
+      el.defer = true;
+      el.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      el.setAttribute("data-cf-beacon", JSON.stringify({ token: analyticsToken }));
+      doc.head.appendChild(el);
+    };
+    if (win.requestIdleCallback) win.requestIdleCallback(beacon, { timeout: 3000 });
+    else if (doc.readyState === "complete") setTimeout(beacon, 400);
+    else win.addEventListener("load", function () { setTimeout(beacon, 400); }, { once: true });
+  }
+
   /* ---- Pages ------------------------------------------------------------
      Home and Portfolio are both in the document. The head script has already
      picked one from the URL before first paint; this keeps the choice, the
