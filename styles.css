@@ -652,9 +652,13 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   align-items: end;
 }
 .pf-head .end { display: flex; justify-content: flex-end; }
+/* Four previews now, and the two websites alone are wider than most screens
+   allow, so this wraps: the sites on one row, the application and the phone
+   on the next. The rows get more air than the columns, since a row ends in
+   two lines of text and the next begins with a frame. */
 .previews {
   display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end;
-  gap: 40px;
+  gap: 64px 40px;
   margin-top: 72px;
 }
 .preview {
@@ -752,11 +756,48 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .frame-phone .screen { inset: 0; }
 .frame-desk.light { --screen-bg: #F5F6F8; }
 
+/* A frame showing this site. Its captures are transparent, so the screen is
+   the space the real page sits in: the nebula's tint as flat gradients (the
+   blur that makes the real one is far too dear to run in a thumbnail), and
+   the scene itself running small over that, drawn by a second <space-scene>
+   inside the frame. The slides sit over both, so the page scrolls across
+   the stars with the brass mark turning behind it. */
+.frame-desk.space, .frame-phone.space {
+  --screen-bg:
+    radial-gradient(70% 55% at 66% 8%, rgba(28, 95, 74, 0.7), rgba(28, 95, 74, 0) 70%),
+    radial-gradient(50% 45% at 80% 50%, rgba(63, 217, 192, 0.16), rgba(63, 217, 192, 0) 70%),
+    radial-gradient(45% 40% at 22% 4%, rgba(229, 180, 87, 0.12), rgba(229, 180, 87, 0) 70%),
+    var(--ground);
+}
+.reel-scene { position: absolute; inset: 0; z-index: 0; }
+/* The mark flat and still, for a frame whose scene never came: the same
+   stand-in the page itself falls back to, hung where the real one hangs. */
+.reel-mark {
+  display: none;
+  position: absolute; left: 50%; top: 34%; z-index: 0;
+  width: 48%;
+  transform: translate(-50%, -50%);
+  color: var(--brass);
+  filter: drop-shadow(0 0 14px rgba(229, 180, 87, 0.4));
+  pointer-events: none;
+  transition: opacity 1.4s ease;
+}
+.reel-scene[failed] + .reel-mark { display: block; }
+/* It belongs to the hero: gone once the reel starts scrolling the page away,
+   and never up behind the portfolio slide, which has no big mark to fall
+   back to. The page's own stand-in fades with the hero the same way. */
+[data-reel].is-riding .reel-mark,
+.screen:has(.reel-slide.is-live[data-page="portfolio"]) .reel-mark { opacity: 0; }
+
 .reel-slide {
-  position: absolute; inset: 0; display: block;
+  position: absolute; inset: 0; display: block; z-index: 1;
   opacity: 0;
   transition: opacity 0.5s var(--ease-out);
 }
+/* This site's header floats over a page that starts at the top of the
+   screen, so its capture is laid over the page here too, rather than above
+   it: the page slides under the header and its fade, as the real one does. */
+.reel-over .reel-head { position: absolute; top: 0; left: 0; width: 100%; }
 .reel-slide.is-live { opacity: 1; }
 /* Both images sit in normal flow, so the page starts below the header exactly
    as it does on the real page. Transforming the page does not move the
@@ -905,6 +946,15 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 }
 .project-wide .blurb { max-width: 44ch; }
 .project .btn-row { margin-top: 30px; }
+/* A second project under the same heading gets a panel of its own, so it
+   arrives from the vanishing point as you reach it rather than riding in
+   under the first. Closer than the next section would be: same subject.
+   Positioned, like a section, because the script measures a panel by its
+   offset from the nearest positioned ancestor and adds that to the parent's
+   own position; left static, the offset would run from the section and be
+   counted twice, and both the links and the approach would land late. */
+.sec-more { position: relative; margin-top: 200px; }
+.sec-more .project { margin-top: 0; }
 .role-list { margin: 28px 0 0; padding-top: 20px; border-top: 1px solid var(--line); }
 .role-list dt {
   font: 500 11px/1.4 var(--mono);
@@ -1142,8 +1192,12 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .services-grid > header { grid-column: 1 / -1; }
   .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 56px; }
-  .showcase { height: auto; align-items: stretch; }
-  .showcase { gap: 16px; }
+  /* The phone frame took its height from the row and its width from nothing,
+     and collapsed to its own bezel beside the desktop frame. A share of the
+     row for its width, with the height following from the aspect ratio, and
+     the two finish level enough to stand on one line. */
+  .showcase { height: auto; align-items: flex-end; gap: 16px; }
+  .showcase .frame-phone { height: auto; width: 21%; }
   .carousel { --cw: min(560px, 62vw); }
   .carousel-wk { --cw: min(260px, 30vw); }
 }
@@ -1154,6 +1208,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .previews { flex-direction: column; align-items: center; gap: 52px; }
   .site-head { padding: 0 24px; }
   .sec, main[data-page="portfolio"] .sec { padding-top: 170px; }
+  .sec-more { margin-top: 130px; }
   .h2, .pf-intro .h1 { font-size: clamp(48px, 11vw, 88px); }
   .h3 { font-size: 32px; }
   .pf-head { grid-template-columns: minmax(0, 1fr); align-items: start; }

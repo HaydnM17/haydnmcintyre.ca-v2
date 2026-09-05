@@ -24,7 +24,7 @@ is vendored as two files so that stays true.
 | `robots.txt` | Opens the site to crawlers, keeps them off `/api/`, points at the sitemap |
 | `sitemap.xml` | The two URLs the site has |
 | `og.jpg` | The 1200x630 card that shows when a link to the site is shared |
-| `assets/work/` | Project screenshots, WebP |
+| `assets/work/` | Project screenshots, WebP. The `-v2-` ones are this site's own, shot transparent |
 
 ## Running it
 
@@ -125,4 +125,37 @@ top of `script.js`.
 `.project` grid puts copy on the left and the showcase on the right; add
 `project-wide` for the 4/8 split the carousels use. Each section's content
 sits in one `.approach` panel, which is what flies in as you scroll, so keep
-the new section's content inside one too.
+the new section's content inside one too. A second project under the same
+heading goes in its own panel, wrapped in a `.sec-more` that carries the id
+(see the previous site under Websites): the panel is transformed on its way
+in, so links need something untransformed to aim at, and the wrapper has to
+be positioned or the script counts the panel's offset twice.
+
+**The site's own entry is live, not a picture.** The other projects are
+shown as screenshots scrolling inside a frame. This site's frames do the same,
+but the captures behind them are transparent (the header strip and the page,
+shot with every fixed layer hidden and the hero collapsed to one screen), and
+the space behind them is a second `<space-scene>` inside each frame with the
+`inset` attribute: the same stars, grids and brass mark, sized to the frame,
+built the first time its reel starts and asleep whenever the reel stops. The
+reel tells the frame what it is doing (`reel-start`, `reel-stop`,
+`reel-slide`, `reel-scroll`) and the scene flies its camera to match: through
+the mark as the hero scrolls away, past it from the start on the portfolio
+slide with the side mark beside the intro. Where WebGL is refused or the
+scene is skipped for a slow connection, the flat brass mark shows in the
+frame instead, as it does for the page. The `view` attribute is the width the
+capture was taken at, which the side mark's clearances are measured against.
+
+Those captures are shot headless at 1520x950 (halved to 760 wide) and 390x844,
+with `?still=1` on the URL, all animations and transitions off, the hero at
+`100vh`, `html` and `body` transparent, and `.nebula`, the page's own
+`space-scene`, `.mark-fallback`, `.grain`, `.boot`, `.jump`, `.site-head` and
+`.top-fade` hidden. The header strips are the top 120px shot separately with
+only `.site-head` and `.top-fade` (shortened to 120px) showing. The page is
+stitched from viewport tiles rather than one full-page shot, because a
+full-page capture resizes the viewport and breaks every `vh` measurement. The
+`data-click` targets are the centres of the nav links as a share of the
+header strip. Because the portfolio page contains the frames themselves,
+shoot it twice: once to make the images, and again once they exist, with the
+inset scenes left running so the nested frames show the mark. Headless
+Chromium draws WebGL in software, so give each tile a moment after scrolling.

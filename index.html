@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300..500&display=swap">
-<link rel="stylesheet" href="styles.css?v=23">
+<link rel="stylesheet" href="styles.css?v=24">
 <script>document.documentElement.className += " js booting";document.documentElement.setAttribute("data-page", /^\/portfolio\/?$/.test(location.pathname) || /[?&]p=portfolio\b/.test(location.search) ? "portfolio" : "home");</script>
 <!-- Structured data. Tells search engines that the site, the person and the
      work are one entity, which is what puts a name in a knowledge panel rather
@@ -313,7 +313,46 @@
         </div>
       </div>
       <div class="previews">
+        <!-- This site, browsing itself. The captures are transparent and the
+             space behind them is live: a small copy of the scene runs inside
+             each frame, and the reel tells it when the page scrolls. -->
         <a class="preview" href="/portfolio#websites" data-go="portfolio:websites">
+          <div class="pv-stage pv-web">
+            <div class="frame-desk space" data-reel>
+              <div class="bar" aria-hidden="true"><i></i><i></i><i></i><b>haydnmcintyre.ca</b></div>
+              <span class="screen">
+                <space-scene class="reel-scene" inset view="1520" stars="360" glow="0.9" waves="0.7" speed="0.5" aria-hidden="true"></space-scene>
+                <svg class="reel-mark" viewBox="0 0 43 32" aria-hidden="true" focusable="false"><use href="#i-mark"/></svg>
+                <span class="reel-slide reel-over is-live" data-page="home" data-click="82.3,31.7">
+                  <img class="reel-head" src="assets/work/head-v2-desk-home.webp" alt="" loading="lazy" width="760" height="60">
+                  <img class="reel-page" src="assets/work/reel-v2-desk-home.webp" alt="The home page of haydnmcintyre.ca, the site you are on." loading="lazy" width="760" height="2322">
+                </span>
+                <span class="reel-slide reel-over" data-page="portfolio" data-click="72.8,31.7">
+                  <img class="reel-head" src="assets/work/head-v2-desk-portfolio.webp" alt="" loading="lazy" width="760" height="60">
+                  <img class="reel-page" src="assets/work/reel-v2-desk-portfolio.webp" alt="Its portfolio page." loading="lazy" width="760" height="3012">
+                </span>
+              </span>
+              <span class="reel-cursor" aria-hidden="true"></span>
+            </div>
+            <div class="frame-phone space" data-reel>
+              <span class="screen">
+                <space-scene class="reel-scene" inset view="390" stars="220" glow="0.9" waves="0.7" speed="0.5" aria-hidden="true"></space-scene>
+                <svg class="reel-mark" viewBox="0 0 43 32" aria-hidden="true" focusable="false"><use href="#i-mark"/></svg>
+                <span class="reel-slide reel-over is-live" data-page="home">
+                  <img class="reel-head" src="assets/work/head-v2-mob-home.webp" alt="" loading="lazy" width="390" height="120">
+                  <img class="reel-page" src="assets/work/reel-v2-mob-home.webp" alt="The same home page on a phone." loading="lazy" width="390" height="6785">
+                </span>
+                <span class="reel-slide reel-over" data-page="portfolio">
+                  <img class="reel-head" src="assets/work/head-v2-mob-portfolio.webp" alt="" loading="lazy" width="390" height="120">
+                  <img class="reel-page" src="assets/work/reel-v2-mob-portfolio.webp" alt="" loading="lazy" width="390" height="7604">
+                </span>
+              </span>
+            </div>
+          </div>
+          <p class="pv-title">Website</p>
+          <p class="pv-name">haydnmcintyre.ca</p>
+        </a>
+        <a class="preview" href="/portfolio#v1-site" data-go="portfolio:v1-site">
           <div class="pv-stage pv-web">
             <div class="frame-desk" data-reel>
               <div class="bar" aria-hidden="true"><i></i><i></i><i></i><b>v1.haydnmcintyre.ca</b></div>
@@ -485,7 +524,61 @@
       <h2 class="h2">Websites</h2>
       <article class="project">
         <div>
-          <p class="kicker">Website</p>
+          <p class="kicker">Website · The one you are on</p>
+          <h3 class="h3">haydnmcintyre.ca</h3>
+          <p class="blurb">This site, designed and built to replace the first one. Plain HTML, CSS and JavaScript again, with no framework and no build step, and three.js behind it for the one thing that needed it: the whole site is a single push forward through a starfield, with the brass HM mark hanging ahead of you in the hero and the camera flying straight through it as you scroll, and every section arrives from the vanishing point. The previews browse each project for you, scrolling it and clicking through it the way a visitor would. Both pages are one document, the contact form posts to a serverless endpoint that mails the message through and falls back to the visitor's own mail app, and structured data and a share card sit behind the page for search and social. The scene waits until the browser is idle and stays away on a slow connection, so the page reads first. Hosting, domain and certificate set up alongside, as before.</p>
+          <ul class="chips">
+            <li>HTML</li><li>CSS</li><li>JavaScript</li><li>three.js</li><li>WebGL</li><li>Serverless functions</li><li>Cloudflare Pages</li>
+          </ul>
+          <div class="btn-row">
+            <a class="btn" href="https://github.com/HaydnM17/haydnmcintyre.ca-v2" rel="noopener">
+              <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><use href="#i-github"/></svg>
+              <span>View the repo ↗</span>
+            </a>
+          </div>
+        </div>
+        <div class="showcase">
+          <div class="frame-desk space" data-reel>
+            <div class="bar" aria-hidden="true"><i></i><i></i><i></i><b>haydnmcintyre.ca</b></div>
+            <span class="screen">
+              <space-scene class="reel-scene" inset view="1520" stars="360" glow="0.9" waves="0.7" speed="0.5" aria-hidden="true"></space-scene>
+              <svg class="reel-mark" viewBox="0 0 43 32" aria-hidden="true" focusable="false"><use href="#i-mark"/></svg>
+              <span class="reel-slide reel-over is-live" data-page="home" data-click="82.3,31.7">
+                <img class="reel-head" src="assets/work/head-v2-desk-home.webp" alt="" loading="lazy" width="760" height="60">
+                <img class="reel-page" src="assets/work/reel-v2-desk-home.webp" alt="The home page of haydnmcintyre.ca scrolling by, the site you are on." loading="lazy" width="760" height="2322">
+              </span>
+              <span class="reel-slide reel-over" data-page="portfolio" data-click="72.8,31.7">
+                <img class="reel-head" src="assets/work/head-v2-desk-portfolio.webp" alt="" loading="lazy" width="760" height="60">
+                <img class="reel-page" src="assets/work/reel-v2-desk-portfolio.webp" alt="Its portfolio page." loading="lazy" width="760" height="3012">
+              </span>
+            </span>
+            <span class="reel-cursor" aria-hidden="true"></span>
+          </div>
+          <div class="frame-phone space" data-reel>
+            <span class="screen">
+              <space-scene class="reel-scene" inset view="390" stars="220" glow="0.9" waves="0.7" speed="0.5" aria-hidden="true"></space-scene>
+              <svg class="reel-mark" viewBox="0 0 43 32" aria-hidden="true" focusable="false"><use href="#i-mark"/></svg>
+              <span class="reel-slide reel-over is-live" data-page="home">
+                <img class="reel-head" src="assets/work/head-v2-mob-home.webp" alt="" loading="lazy" width="390" height="120">
+                <img class="reel-page" src="assets/work/reel-v2-mob-home.webp" alt="The same pages on a phone." loading="lazy" width="390" height="6785">
+              </span>
+              <span class="reel-slide reel-over" data-page="portfolio">
+                <img class="reel-head" src="assets/work/head-v2-mob-portfolio.webp" alt="" loading="lazy" width="390" height="120">
+                <img class="reel-page" src="assets/work/reel-v2-mob-portfolio.webp" alt="" loading="lazy" width="390" height="7604">
+              </span>
+            </span>
+          </div>
+        </div>
+      </article>
+    </div>
+    <!-- The previous site, in a panel of its own so it arrives on its own.
+         The wrapper carries the id: the panel is transformed on its way in, and
+         the links need something untransformed to aim at. -->
+    <div class="sec-more" id="v1-site">
+    <div class="approach" data-approach>
+      <article class="project">
+        <div>
+          <p class="kicker">Website · The previous one</p>
           <h3 class="h3">v1.haydnmcintyre.ca</h3>
           <p class="blurb">The previous version of this site, which I designed and built for myself before the current one. Plain HTML, CSS and JavaScript with no framework, page builder or template behind it. Responsive from a phone upward, with an animated particle field in the hero that reacts to the cursor, a scroll progress bar, section tracking that follows you down the page, and a lightbox on every screenshot. The contact form posts to a serverless endpoint that mails the message straight through, and falls back to opening the visitor's own mail app if that is ever unreachable. I set up the hosting, the domain and the certificate alongside it.</p>
           <ul class="chips">
@@ -531,6 +624,7 @@
           </div>
         </div>
       </article>
+    </div>
     </div>
   </section>
 
@@ -694,7 +788,7 @@
 <div class="boot" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<script src="space-scene.js?v=23" defer></script>
-<script src="script.js?v=23" defer></script>
+<script src="space-scene.js?v=24" defer></script>
+<script src="script.js?v=24" defer></script>
 </body>
 </html>

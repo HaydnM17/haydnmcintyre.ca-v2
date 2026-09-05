@@ -265,7 +265,9 @@
      means a slow connection or a machine without WebGL still gets in rather
      than staring at the ground colour, and the static mark is only raised
      when the scene has actually said it failed. */
-  var scene = doc.querySelector("space-scene");
+  /* The page's own scene, and not one of the small copies inside the
+     previews of this site: those take their scroll from the reel around them. */
+  var scene = doc.querySelector("space-scene:not([inset])");
   var fallback = doc.getElementById("mark-fallback");
   var booted = false;
   var boot = function () {
@@ -874,7 +876,17 @@
 
      A frame only runs while it is on screen, on the page you are looking at,
      and in a foreground tab. Under reduced motion it still moves between
-     slides, but it crossfades: no scrolling, no cursor. */
+     slides, but it crossfades: no scrolling, no cursor.
+
+     A frame showing this site has the space scene running live behind a
+     transparent capture of the page. The reel does not know how that is
+     drawn; it announces on the frame which slide has come up (reel-slide)
+     and each scroll as it starts (reel-scroll, with the distance, the time
+     and the curve), and the scene inside the frame flies its camera to match.
+     Those slides carry their header over the page (reel-over) rather than
+     above it, since the real header floats over a page that starts at the
+     top of the screen, so a header like that takes nothing off the room the
+     page has to scroll in. */
   (function () {
     var frames = Array.prototype.slice.call(doc.querySelectorAll("[data-reel]"));
     if (!frames.length || capture) return;
@@ -884,6 +896,7 @@
        with nothing to scroll skips only the scroll. */
     var HOLD_TOP = 450;
     var SCROLL_MS = 12000;
+    var SCROLL_EASE = [0.4, 0, 0.35, 1];
     var HOLD_END = 1700;
     /* A page has to overflow its frame by a real amount to be worth
        scrolling. Below this it is held still, so a capture that only spills a
@@ -929,7 +942,8 @@
       var page = slide.querySelector(".reel-page");
       var head = slide.querySelector(".reel-head");
       if (!page) return 0;
-      var room = this.screen.clientHeight - (head ? head.offsetHeight : 0);
+      var over = slide.classList.contains("reel-over");
+      var room = this.screen.clientHeight - (head && !over ? head.offsetHeight : 0);
       /* Nothing has laid out yet: the page this frame lives on is not showing,
          or the captures have not sized. Measuring now reads the image at its
          natural height and would scroll it thousands of pixels. */
@@ -978,9 +992,20 @@
        showing the same site in step. */
     Reel.prototype.scroll = function (slide, distance, next) {
       var page = slide.querySelector(".reel-page");
-      page.style.transition = "transform " + SCROLL_MS + "ms cubic-bezier(0.4, 0, 0.35, 1)";
+      page.style.transition = "transform " + SCROLL_MS + "ms cubic-bezier(" + SCROLL_EASE.join(", ") + ")";
       page.style.transform = "translateY(" + -distance + "px)";
+      /* For the stylesheet: the flat mark a frame falls back to when its scene
+         never came fades with the hero, as the page's own does. */
+      this.frame.classList.add("is-riding");
+      this.tell("reel-scroll", { distance: distance, duration: SCROLL_MS, ease: SCROLL_EASE });
       this.wait(SCROLL_MS + 80, next);
+    };
+
+    /* What the frame is doing, for anything drawn inside it that wants to
+       keep step. Nothing in here listens; the scene behind a capture of this
+       site does. */
+    Reel.prototype.tell = function (name, detail) {
+      this.frame.dispatchEvent(new win.CustomEvent(name, { detail: detail }));
     };
 
     Reel.prototype.play = function () {
@@ -996,6 +1021,8 @@
         page.style.transition = "";
       }
       this.slides.forEach(function (s) { s.classList.toggle("is-live", s === slide); });
+      this.frame.classList.remove("is-riding");
+      this.tell("reel-slide", { page: slide.getAttribute("data-page") || "home" });
 
       if (motionQuery.matches) {
         this.wait(REDUCED_HOLD, function () { self.advance(); });
@@ -1039,13 +1066,18 @@
          arrive; resyncAll brings it up once the page is showing. */
       if (this.running || !this.screen.clientHeight) return;
       this.running = true;
+      this.tell("reel-start", {});
       this.play();
     };
 
+    /* Told on the change only: the tick asks a stopped frame to stop again
+       every time the page moves. */
     Reel.prototype.stop = function () {
+      var was = this.running;
       this.running = false;
       win.clearTimeout(this.timer);
       if (this.cursor) this.cursor.classList.remove("is-on", "is-click");
+      if (was) this.tell("reel-stop", {});
     };
 
     var reels = [];

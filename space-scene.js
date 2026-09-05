@@ -5,7 +5,19 @@
    through: same geometry, same brass, passed at a distance rather than through.
    Attributes: scroll (px) · gate (px of scroll at which the camera passes through the mark)
                stars (count) · glow (0–2) · waves (0–2 amplitude) · speed (sway, rad/s)
-               aside (1–0 of the side mark, run down as the copy beside it scrolls away) */
+               aside (1–0 of the side mark, run down as the copy beside it scrolls away)
+
+   The same element also runs small, inside a preview frame, as the space behind
+   a capture of this site: put `inset` on it and it sizes itself to the frame
+   instead of the window, comes up the first time it is on screen and sleeps
+   whenever it is not, and takes its scroll from the reel playing around it
+   rather than from the page. The frame tells it which page is up and how far
+   that page is scrolling (`reel-slide` and `reel-scroll`, dispatched by
+   script.js on the frame), and it flies the camera to match: through the mark
+   as the hero scrolls away, past it from the start on the portfolio, with the
+   side mark beside that page's opening. `view` is the width of the window the
+   capture was taken in, which is what the side mark's clearances are measured
+   against, since the copy in the capture is a share of that and not of the frame. */
 (function () {
   if (window.customElements.get('space-scene')) return;
   var THREE_SRC = './vendor/three.module.min.js';
@@ -47,6 +59,7 @@
   var A_RISE = 1;              // half frames it climbs on the way out: enough to clear the top
   var A_CLEAR = 718;           // px the copy beside it runs to, plus air: the mark stays clear of that
   var A_MIN = 860;             // narrower than this there is nothing left of the frame worth putting it in
+  var R_GATE = 0.9;            // inset: share of a frame height the reel scrolls before the camera is through the mark
   var BRASS = 0xE5B457, BRASS_DIM = 0xB98C33, ELECTRIC = 0x3FD9C0, GROUND = 0x0A100E;
   var PALETTE = [[0.93,0.95,0.93],[0.93,0.95,0.93],[0.93,0.95,0.93],[0.25,0.85,0.75],[0.9,0.71,0.34],[0.2,0.6,0.47]];
 
@@ -54,24 +67,102 @@
   // A full turn that lingers facing front and whips through the back.
   function turnOf(phi) { var f = phi - Math.floor(phi), f3 = f * f * f, g3 = (1 - f) * (1 - f) * (1 - f); return Math.PI * 2 * (Math.floor(phi) + f3 / (f3 + g3)); }
   function smooth(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+  // The reel scrolls its page with a CSS transition, which costs no script while
+  // it runs. To keep the camera on the same curve this evaluates the same
+  // cubic-bezier: solve the x polynomial for the parameter, read y off it.
+  function bezier(c, x) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    var t = x;
+    for (var i = 0; i < 8; i++) {
+      var u = 1 - t, bx = 3 * u * u * t * c[0] + 3 * u * t * t * c[2] + t * t * t - x;
+      var dx = 3 * u * u * c[0] + 6 * u * t * (c[2] - c[0]) + 3 * t * t * (1 - c[2]);
+      if (Math.abs(bx) < 1e-5 || dx === 0) break;
+      t = Math.max(0, Math.min(1, t - bx / dx));
+    }
+    var v = 1 - t;
+    return 3 * v * v * t * c[1] + 3 * v * t * t * c[3] + t * t * t;
+  }
 
   class SpaceScene extends HTMLElement {
     static get observedAttributes() { return ['scroll', 'gate', 'stars', 'glow', 'waves', 'speed']; }
-    constructor() { super(); this._scroll = 0; this._gate = 1000; this._t = 0; this._raf = 0; this._last = 0; this._d0 = 100; this._z = 0; this._prevZ = 0; }
+    constructor() {
+      super();
+      this._scroll = 0; this._gate = 1000; this._t = 0; this._raf = 0; this._last = 0; this._d0 = 100; this._z = 0; this._prevZ = 0;
+      this._inset = false; this._shown = true; this._h = 1; this._page = 'home'; this._ride = null; this._snap = false;
+    }
     connectedCallback() {
-      this.style.cssText += ';display:block;position:fixed;inset:0;pointer-events:none';
+      this._inset = this.hasAttribute('inset');
+      this.style.cssText += ';display:block;position:' + (this._inset ? 'absolute' : 'fixed') + ';inset:0;pointer-events:none';
       if (this._started) { this._resume(); return; }
       this._started = true;
-      var self = this;
       // Same signal as a machine with no WebGL, so script.js and the stylesheet
       // need to know nothing about why the scene is not coming.
-      if (tooExpensive()) { this._down('space-scene: skipped, data saver or a very slow connection'); return; }
-      whenIdle(function () {
-        self._init().catch(function (e) { self._down('space-scene: WebGL unavailable', e); });
-      });
+      if (tooExpensive()) { this._down('space-scene: skipped, data saver or a very slow connection', null, this._inset); return; }
+      if (this._inset) { this._watchInset(); return; }
+      var self = this;
+      whenIdle(function () { self._boot(); });
     }
-    _down(msg, e) {
-      console.warn(msg, e || '');
+    _boot() {
+      var self = this;
+      if (this._booting) return;
+      this._booting = true;
+      this._init().catch(function (e) { self._down('space-scene: WebGL unavailable', e); });
+    }
+    // Inset: nothing is built until the frame can actually be seen, so the
+    // copy on the page you are not looking at, and the previews far down the
+    // one you are, cost nothing until they are reached; out of sight again,
+    // the loop stops. The reel around the frame is what says so. It runs only
+    // while the frame is on screen, in a panel that has landed, on the page
+    // that is showing and in a tab that is in front, which is exactly when
+    // the scene should run too, so its start and stop wake and sleep this.
+    //
+    // An observer on the element alone cannot tell: a panel on its way in is
+    // a speck at the vanishing point, in the middle of the screen, and counts
+    // as on screen from the moment its page shows. The observer is kept only
+    // for a frame with no reel running (a still capture), and it looks at the
+    // panel's opacity as well, which is how the reel tells landed from far.
+    _watchInset() {
+      var self = this;
+      var frame = this.closest('[data-reel]');
+      var panel = this.closest('[data-approach]');
+      this._reelOn = false; this._seen = false;
+      this._settle();
+      if (frame) {
+        frame.addEventListener('reel-start', function () { self._reelOn = true; self._settle(); });
+        frame.addEventListener('reel-stop', function () { self._reelOn = false; self._settle(); });
+        frame.addEventListener('reel-slide', function (e) {
+          self._page = (e.detail && e.detail.page) || 'home';
+          self._ride = null;
+          self._snap = true;
+          if (!self._reelOn) { self._reelOn = true; self._settle(); }
+        });
+        frame.addEventListener('reel-scroll', function (e) {
+          var d = e.detail || {};
+          self._ride = { t0: performance.now(), dist: d.distance || 0, dur: Math.max(1, d.duration || 1), ease: d.ease || [0.4, 0, 0.35, 1] };
+        });
+      }
+      if (!('IntersectionObserver' in window)) {
+        if (!frame) { this._seen = true; this._settle(); }
+        return;
+      }
+      new IntersectionObserver(function (entries) {
+        var on = false;
+        entries.forEach(function (en) { on = en.isIntersecting; });
+        var o = panel ? parseFloat(panel.style.opacity) : NaN;
+        self._seen = on && (isNaN(o) || o >= 0.85);
+        self._settle();
+      }, { rootMargin: '25%' }).observe(this);
+    }
+    _settle() {
+      this._shown = !!(this._reelOn || this._seen);
+      if (!this._shown) { this._pause(); return; }
+      if (this._renderer) this._resume(); else this._boot();
+    }
+    _down(msg, e, quiet) {
+      // The page's own scene has already said why when this is an inset copy
+      // of it skipping for the same reason; one warning is enough.
+      if (!quiet) console.warn(msg, e || '');
       this.setAttribute('failed', '');
       this.dispatchEvent(new CustomEvent('scene-failed'));
     }
@@ -86,7 +177,7 @@
     async _init() {
       var THREE = await loadThree();
       this._THREE = THREE;
-      var self = this;
+      var self = this, inset = this._inset;
       var canvas = document.createElement('canvas');
       canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
       this.appendChild(canvas);
@@ -136,9 +227,11 @@
       var rim = new THREE.DirectionalLight(0xffffff, 1.4); rim.position.set(30, 40, -60); scene.add(rim);
       scene.add(new THREE.HemisphereLight(0x3a5a52, 0x05080a, 0.5));
 
-      // Wave grids: a floor and a ceiling, lit by the mark's lamp as you pass it
+      // Wave grids: a floor and a ceiling, lit by the mark's lamp as you pass it.
+      // The inset copies get a coarser mesh: every vertex is moved by script
+      // each frame, and there can be several of these running beside the page's own.
       function grid(y) {
-        var g = new THREE.PlaneGeometry(820, 460, 100, 56); g.rotateX(-Math.PI / 2);
+        var g = new THREE.PlaneGeometry(820, 460, inset ? 50 : 100, inset ? 28 : 56); g.rotateX(-Math.PI / 2);
         var m = new THREE.MeshStandardMaterial({ color: 0x0c332d, emissive: ELECTRIC, emissiveIntensity: 0.18, wireframe: true, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, roughness: 0.7, metalness: 0.1 });
         var mesh = new THREE.Mesh(g, m); mesh.position.y = y; mesh.userData.base = Float32Array.from(g.attributes.position.array);
         scene.add(mesh); return mesh;
@@ -150,7 +243,12 @@
       this._applyGlow();
 
       this._frame = function () {
-        var w = window.innerWidth || 1, h = window.innerHeight || 1;
+        // An inset copy is the size of the frame it sits in; the page's own is
+        // the window. A frame on the page that is not showing measures nothing,
+        // and is left as it was until it can be measured.
+        var w = inset ? self.clientWidth : window.innerWidth, h = inset ? self.clientHeight : window.innerHeight;
+        if (!(w > 0 && h > 0)) return;
+        self._h = h;
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         var tan = Math.tan(camera.fov * Math.PI / 360);
@@ -160,17 +258,21 @@
         // the screen at any size. The copy beside it runs to a fixed width
         // rather than a share of one, so on a narrow window the mark takes what
         // is left of the frame and sits hard against that copy instead of over it.
+        // Inside a preview the copy is a capture scaled into the frame, so the
+        // width that matters is the window the capture was taken in.
+        var vw = inset ? num(self, 'view', w) : w;
         var aH = A_D * tan, aW = aH * camera.aspect;
-        var clear = A_CLEAR / w, share = Math.min(A_W, 0.95 - clear);
+        var clear = A_CLEAR / vw, share = Math.min(A_W, 0.95 - clear);
         self._aHalfW = aW; self._aHalfH = aH;
         self._aScale = Math.min((share * 2 * aW) / W, (A_H * 2 * aH) / HGT);
         var half = (self._aScale * W) / (4 * aW);          // its half width, as a share of the frame
         self._aXf = (Math.max(0.5 + A_X / 2 - half, clear) + half - 0.5) * 2;
-        self._aRoom = w >= A_MIN;
+        self._aRoom = vw >= A_MIN;
         camera.updateProjectionMatrix();
       };
       this._frame();
       window.addEventListener('resize', this._frame);
+      if (inset && 'ResizeObserver' in window) new ResizeObserver(this._frame).observe(this);
       this._reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       document.addEventListener('visibilitychange', function () { document.hidden ? self._pause() : self._resume(); });
       this._resume();
@@ -240,10 +342,27 @@
       var t = this._t;
 
       // Camera: the whole page is one push forward. Lerped so the ride is smooth.
-      var target = -this._scroll * (this._d0 / this._gate);
+      // Inside a preview the push is the reel's: the page it is showing is a
+      // frame tall in its hero, so the mark is passed within that first frame
+      // of scroll, and the portfolio slide starts past it the way the real
+      // page does. The side mark's strength runs down over the opening half
+      // frame of that slide, as script.js does for the page itself.
+      var scroll = this._scroll, ar;
+      if (this._inset) {
+        var gate = Math.max(1, this._h * R_GATE), r = this._ride, s = 0;
+        if (r) s = r.dist * bezier(r.ease, (now - r.t0) / r.dur);
+        this._gate = gate;
+        scroll = s + (this._page === 'portfolio' ? gate * 1.6 : 0);
+        ar = this._page === 'portfolio' ? Math.max(0, Math.min(1, 1 - (s / this._h) / 0.5)) : 0;
+      } else {
+        ar = Math.max(0, Math.min(1, num(this, 'aside', 0)));
+      }
+      var target = -scroll * (this._d0 / this._gate);
       // First frame lands where it belongs rather than lerping in from the
       // mark: loading /portfolio directly used to fly through it on arrival.
-      if (!this._placed) { this._z = target; this._placed = true; }
+      // A preview cutting to its other page lands the same way, or the cut
+      // would fly the camera back through the mark on every crossfade.
+      if (!this._placed || this._snap) { this._z = target; this._placed = true; this._snap = false; }
       this._z += (target - this._z) * 0.14;
       var camZ = this._z, cam = this._camera;
       cam.position.set(GAP_X, 0, camZ);
@@ -278,7 +397,7 @@
       // started from and then scaled back by how much of that is left, which
       // takes the swell out of the climb alone: it comes at you, but it still
       // goes up the frame at the speed of the copy beside it.
-      var aside = this._aside, ar = Math.max(0, Math.min(1, num(this, 'aside', 0)));
+      var aside = this._aside;
       var ak = smooth(Math.min(1, ar / 0.5));
       if (aside) {
         aside.visible = ak > 0.004 && this._aRoom;
@@ -312,7 +431,13 @@
       this._wave(this._ceil, t * 0.8 + 2, GAP_X, camZ);
       this._renderer.render(this._scene, cam);
     }
-    _resume() { if (this._raf || !this._renderer) return; this._last = 0; var self = this; this._raf = requestAnimationFrame(function (t) { self._tick(t); }); }
+    _resume() {
+      if (this._raf || !this._renderer) return;
+      // An inset copy that has scrolled out of view stays asleep, whatever
+      // else asks it to wake; the observer brings it back when it is seen.
+      if (this._inset && !this._shown) return;
+      this._last = 0; var self = this; this._raf = requestAnimationFrame(function (t) { self._tick(t); });
+    }
     _pause() { cancelAnimationFrame(this._raf); this._raf = 0; }
   }
   window.customElements.define('space-scene', SpaceScene);
