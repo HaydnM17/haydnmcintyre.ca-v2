@@ -115,6 +115,17 @@ The JSON-LD deliberately carries no email, no phone and no prices. The offers in
 it match the Services section word for word: structured data that claims more
 than the page shows is treated as spam rather than as a bonus.
 
+**Analytics are wired up but switched off.** `script.js` has an
+`analyticsToken` line at the top, next to the mail address. Empty, which is how
+it ships, and nothing is requested at all. Paste the token from the Cloudflare
+dashboard (Web Analytics, add the site, then the `token` value out of the
+snippet it gives you) between the quotes and it starts reporting on the next
+deploy. Cloudflare's rather than Google's because it sets no cookies and stores
+nothing on the visitor, so there is no consent banner to add. localhost and
+`file://` are skipped, so working on the site does not land in the numbers, and
+the beacon waits for the browser to go idle so measuring the page is not the
+thing that slows it.
+
 **The email address is never in the markup.** `script.js` assembles it at
 runtime and fills any element marked `data-mail`, so scrapers reading the raw
 HTML find nothing. To change it, edit the `mailUser` and `mailHost` lines at the
