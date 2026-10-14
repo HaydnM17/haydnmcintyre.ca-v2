@@ -645,13 +645,19 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .hero-ann a:hover, .hero-ann a:focus-visible { color: var(--brass); }
 
 /* ---- Portfolio preview (home) ----------------------------------------- */
+/* The heading on the left, and the way into the full portfolio in the middle
+   of the page on the same line, level with the heading rather than pushed
+   out to the far edge. The third column is empty and only there so the
+   middle one is the true centre of the page. */
 .pf-head {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: 24px 96px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 24px 48px;
   align-items: end;
 }
-.pf-head .end { display: flex; justify-content: flex-end; }
+/* Bottom-aligned with the heading block, then lifted by half the difference
+   between the heading's line and the button, so the two share a centre line. */
+.pf-head .end { display: flex; justify-content: center; padding-bottom: calc((88px * 0.85 - 44px) / 2); }
 /* Four previews now, and the two websites alone are wider than most screens
    allow, so this wraps: the sites on one row, the application and the phone
    on the next. The rows get more air than the columns, since a row ends in
@@ -1212,7 +1218,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .h2, .pf-intro .h1 { font-size: clamp(48px, 11vw, 88px); }
   .h3 { font-size: 32px; }
   .pf-head { grid-template-columns: minmax(0, 1fr); align-items: start; }
-  .pf-head .end { justify-content: flex-start; }
+  .pf-head .end { justify-content: flex-start; padding-bottom: 0; }
   .services-grid, .skills-grid { grid-template-columns: minmax(0, 1fr); }
   .hero-body { padding-bottom: 14vh; }
   .hero-ann { left: 24px; right: 24px; bottom: 24px; }
