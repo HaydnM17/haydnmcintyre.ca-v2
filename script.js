@@ -580,6 +580,27 @@
     rules.forEach(function (r) { watch.observe(r); });
   })();
 
+  /* ---- Decode the captures before their panel arrives -------------------
+     A panel at opacity 0 is never painted, so its images are never decoded.
+     The first time the Projects panel faded in, all of its captures, several
+     of them full-length pages, decoded at once while it was flying in, and
+     the main thread that drives the approach stalled: the panel stopped
+     mid-flight while the page kept scrolling, then snapped forward. First
+     visit only, because after that they are already decoded.
+
+     Each capture is decoded as soon as it has loaded. decode() does the work
+     off the main thread and hands back a promise, so this costs the page
+     nothing while it runs. It never fetches anything either: images still load
+     lazily on their own schedule, which is what keeps the first load light on
+     a phone. It only moves the decoding off the moment the panel appears. An
+     idle-callback queue was tried first and was far too slow, because the
+     scene redraws every frame and leaves almost no idle time. */
+  Array.prototype.forEach.call(doc.querySelectorAll("main img"), function (img) {
+    var decode = function () { if (img.decode) img.decode().catch(function () {}); };
+    if (img.complete && img.naturalWidth) decode();
+    else img.addEventListener("load", decode, { once: true });
+  });
+
   /* ---- Lightbox ---------------------------------------------------------
      A capture at full size over the page. Returns focus to whatever opened
      it, which for a carousel is the capture you clicked. */
