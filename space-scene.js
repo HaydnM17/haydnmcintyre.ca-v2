@@ -40,6 +40,9 @@
   // vendor files while the stylesheet, the fonts and the first screenshots were
   // still queued, which is the wrong order on a phone: the page is readable
   // before the scene matters.
+  // The previews' own scenes are built one at a time, never two at once.
+  var warmChain = Promise.resolve();
+
   function whenIdle(fn) {
     if (window.requestIdleCallback) { requestIdleCallback(fn, { timeout: 1200 }); return; }
     if (document.readyState === 'complete') { setTimeout(fn, 120); return; }
@@ -107,7 +110,7 @@
       var self = this;
       if (this._booting) return;
       this._booting = true;
-      this._init().catch(function (e) { self._down('space-scene: WebGL unavailable', e); });
+      this._initP = this._init().catch(function (e) { self._down('space-scene: WebGL unavailable', e); });
     }
     // Inset: nothing is built until the frame can actually be seen, so the
     // copy on the page you are not looking at, and the previews far down the
@@ -128,6 +131,7 @@
       var panel = this.closest('[data-approach]');
       this._reelOn = false; this._seen = false;
       this._settle();
+      this._warmAhead();
       if (frame) {
         frame.addEventListener('reel-start', function () { self._reelOn = true; self._settle(); });
         frame.addEventListener('reel-stop', function () { self._reelOn = false; self._settle(); });
@@ -153,6 +157,47 @@
         self._seen = on && (isNaN(o) || o >= 0.85);
         self._settle();
       }, { rootMargin: '25%' }).observe(this);
+    }
+    // Build ahead of time, not when the preview first starts. Building here
+    // means a new WebGL context, the mark's geometry, its materials and their
+    // shaders, all at once and on the main thread, and two previews start
+    // together. Done at the moment the preview started, that froze the whole
+    // page, the backdrop included, for about a second as the home Projects
+    // panel landed. So once the page's own scene is up, each preview's scene
+    // on the page that is showing is built in an idle moment, one after
+    // another, with its shaders compiled off the main thread. The loop still
+    // only runs while the preview does: _resume keeps an inset asleep until
+    // it is shown, so building early costs nothing but the build.
+    _warmAhead() {
+      var self = this;
+      var main = this.closest('main[data-page]');
+      var mine = function () {
+        return !main || main.getAttribute('data-page') === document.documentElement.getAttribute('data-page');
+      };
+      var go = function () {
+        warmChain = warmChain.then(function () {
+          return new Promise(function (done) {
+            whenIdle(function () {
+              if (!self._renderer && !self._booting) self._boot();
+              (self._initP || Promise.resolve()).then(done, done);
+            });
+          });
+        });
+      };
+      var whenMine = function () {
+        if (mine()) { go(); return; }
+        // A preview on the other page is built when that page is first shown.
+        new MutationObserver(function (_, mo) {
+          if (!mine()) return;
+          mo.disconnect();
+          go();
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-page'] });
+      };
+      // After the page's own scene, so this never competes with the hero.
+      var page = document.querySelector('space-scene:not([inset])');
+      if (!page || page.hasAttribute('ready') || page.hasAttribute('failed')) { whenMine(); return; }
+      page.addEventListener('scene-ready', whenMine, { once: true });
+      page.addEventListener('scene-failed', whenMine, { once: true });
     }
     _settle() {
       this._shown = !!(this._reelOn || this._seen);
@@ -275,6 +320,13 @@
       if (inset && 'ResizeObserver' in window) new ResizeObserver(this._frame).observe(this);
       this._reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       document.addEventListener('visibilitychange', function () { document.hidden ? self._pause() : self._resume(); });
+      // A preview's scene compiles its shaders now, off the main thread, and
+      // draws once so its buffers and textures are already on the GPU. Its
+      // first real frame, when the preview starts, then has nothing to build.
+      if (inset) {
+        if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch (e) {} }
+        renderer.render(scene, camera);
+      }
       this._resume();
       this.setAttribute('ready', '');
       this.dispatchEvent(new CustomEvent('scene-ready'));
