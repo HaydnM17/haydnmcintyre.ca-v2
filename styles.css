@@ -806,7 +806,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 /* Height is auto so a tall capture keeps its own aspect and overflows
    downward, which is exactly the overflow the script scrolls through. */
 .reel-page { position: relative; z-index: 1; width: 100%; height: auto; display: block; }
-.reel-slide.is-live .reel-page { will-change: transform; }
+.is-running .reel-slide.is-live .reel-page { will-change: transform; }
 
 /* The cursor. Hidden until the script has a reason to move it. */
 .reel-cursor {

@@ -944,10 +944,16 @@
        scroll before anyone could see it, and the preview would arrive parked
        at the bottom of its page, only ever crossfading. Wait until the panel
        has essentially landed. */
+    /* Wait until the panel has landed flat, not merely become mostly opaque.
+       At 85% opacity a panel is only about three quarters of the way through
+       its approach, and a preview playing inside a panel that is still tilted
+       and moving in 3D has its tall page captures redrawn at a new size every
+       frame. That stalled the approach of the home Projects panel for about a
+       second, every time, until it landed and snapped flat. The tick marks a
+       landed panel with data-settled and drops its transform at that moment. */
     Reel.prototype.arrived = function () {
       if (!this.panel) return true;
-      var o = parseFloat(this.panel.style.opacity);
-      return isNaN(o) ? true : o >= 0.85;
+      return this.panel.dataset.settled === "1";
     };
 
     Reel.prototype.wait = function (ms, next) {
@@ -1087,6 +1093,7 @@
          arrive; resyncAll brings it up once the page is showing. */
       if (this.running || !this.screen.clientHeight) return;
       this.running = true;
+      this.frame.classList.add("is-running");
       this.tell("reel-start", {});
       this.play();
     };
@@ -1096,6 +1103,7 @@
     Reel.prototype.stop = function () {
       var was = this.running;
       this.running = false;
+      this.frame.classList.remove("is-running");
       win.clearTimeout(this.timer);
       if (this.cursor) this.cursor.classList.remove("is-on", "is-click");
       if (was) this.tell("reel-stop", {});
