@@ -1131,6 +1131,13 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 }
 .site-foot .gh:hover, .site-foot .gh:focus-visible { color: var(--chalk); }
 .site-foot .gh svg { display: block; }
+.site-foot .foot-links { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 28px; }
+.site-foot .login {
+  color: var(--mist);
+  font: 400 14px/1.2 var(--sans);
+  transition: color 0.25s;
+}
+.site-foot .login:hover, .site-foot .login:focus-visible { color: var(--chalk); }
 .site-foot .copy { margin: 0; font: 300 14px/1.4 var(--sans); color: var(--mist); }
 
 /* ---- Section arrows -----------------------------------------------------

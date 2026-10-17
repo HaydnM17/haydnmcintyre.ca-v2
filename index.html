@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300..500&display=swap">
-<link rel="stylesheet" href="styles.css?v=30">
+<link rel="stylesheet" href="styles.css?v=31">
 <script>document.documentElement.className += " js booting";document.documentElement.setAttribute("data-page", /^\/portfolio\/?$/.test(location.pathname) || /[?&]p=portfolio\b/.test(location.search) ? "portfolio" : "home");</script>
 <!-- Structured data. Tells search engines that the site, the person and the
      work are one entity, which is what puts a name in a knowledge panel rather
@@ -218,6 +218,7 @@
       </div>
     </div>
     <a class="nav-services" href="/#services" data-go="home:services" data-sec="services">Services</a>
+    <a class="nav-login" href="https://my.haydnmcintyre.ca" rel="noopener">Client login</a>
     <a class="btn btn-brass btn-sm" href="/#contact" data-go="home:contact" data-sec="contact">Contact<span class="sheen" aria-hidden="true"></span></a>
   </nav>
   <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
@@ -236,6 +237,7 @@
   <a class="sub" href="/portfolio#mobile" data-go="portfolio:mobile">Mobile app</a>
   <a class="sub" href="/portfolio#skills" data-go="portfolio:skills">Technical skills</a>
   <a href="/#services" data-go="home:services">Services</a>
+  <a href="https://my.haydnmcintyre.ca" rel="noopener">Client login</a>
   <a class="btn btn-brass" href="/#contact" data-go="home:contact">Contact<span class="sheen" aria-hidden="true"></span></a>
 </nav>
 
@@ -758,10 +760,13 @@
 
 <footer class="site-foot">
   <p class="name">Haydn McIntyre</p>
-  <a class="gh" href="https://github.com/HaydnM17" rel="noopener">
-    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><use href="#i-github"/></svg>
-    GitHub
-  </a>
+  <div class="foot-links">
+    <a class="gh" href="https://github.com/HaydnM17" rel="noopener">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><use href="#i-github"/></svg>
+      GitHub
+    </a>
+    <a class="login" href="https://my.haydnmcintyre.ca" rel="noopener">Client login</a>
+  </div>
   <p class="copy">© <span id="year">2026</span> Haydn McIntyre</p>
 </footer>
 
@@ -788,7 +793,7 @@
 <div class="boot" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<script src="space-scene.js?v=30" defer></script>
-<script src="script.js?v=30" defer></script>
+<script src="space-scene.js?v=31" defer></script>
+<script src="script.js?v=31" defer></script>
 </body>
 </html>
