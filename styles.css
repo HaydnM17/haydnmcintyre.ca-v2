@@ -894,6 +894,31 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .steps .service .num { grid-row: 1 / span 2; padding-top: 12px; font-size: 13px; }
 .steps .service h3 { grid-column: 2; font-size: 38px; }
 .steps .service p { grid-column: 2; font-size: 17px; max-width: 52ch; }
+/* Two ways to keep the site: a pair of cells side by side under the steps,
+   stacked on a phone. One note under both. */
+.paths { grid-column: 1 / -1; display: grid; gap: 28px; margin-top: 24px; }
+.paths-head { margin: 0; font: 300 38px/1.05 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
+.paths-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
+.path {
+  display: grid; gap: 12px; align-content: start;
+  padding: 24px 28px 28px;
+  border: 1px solid var(--line);
+  border-top-color: var(--line-int);
+  background: rgba(236, 241, 236, 0.02);
+}
+.path .num { font: 500 11px/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); }
+.path h3 { margin: 0; font: 300 34px/1.05 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
+.path p, .path li, .paths-note {
+  font: 300 16px/1.6 var(--sans);
+  letter-spacing: -0.005em;
+  color: var(--mist);
+  text-wrap: pretty;
+}
+.path p { margin: 4px 0 0; }
+.path ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.path li { position: relative; padding-left: 22px; }
+.path li::before { content: ""; position: absolute; left: 0; top: 0.85em; width: 12px; height: 1px; background: var(--brass); }
+.paths-note { margin: 0; max-width: 62ch; font-size: 17px; }
 .included-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .included-note {
   grid-column: 1 / -1;
@@ -1262,6 +1287,10 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .services-grid, .skills-grid { grid-template-columns: minmax(0, 1fr); }
   .steps .service { grid-template-columns: 40px minmax(0, 1fr); column-gap: 10px; }
   .steps .service h3 { font-size: 32px; }
+  .paths-head { font-size: 32px; }
+  .paths-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .path { padding: 22px 20px 24px; }
+  .path h3 { font-size: 30px; }
   .hero-body { padding-bottom: 14vh; }
   .hero-ann { left: 24px; right: 24px; bottom: 24px; }
   .site-foot { margin: 120px var(--gutter) 0; flex-wrap: wrap; }
