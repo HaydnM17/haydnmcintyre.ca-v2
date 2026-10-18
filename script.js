@@ -310,6 +310,43 @@
   };
   var panels = Array.prototype.slice.call(doc.querySelectorAll("[data-approach]"));
 
+  /* ---- How it works timeline ---------------------------------------------
+     Each stop, and each of the two options under the last, is revealed once
+     its panel has landed (the panel's own approach writes data-settled) and
+     the item itself is on screen. Ordering inside a stop is CSS: the line
+     segment after it draws once it has risen. On a wide screen the four stops
+     share a row, so they go together and the CSS staggers them along the
+     line; on a phone each is revealed as it is scrolled to. Reduced motion
+     and ?still show everything at once. The hidden state only exists once
+     .is-armed is on, so without this script the timeline is simply drawn. */
+  var tlRoot = doc.querySelector("[data-timeline]");
+  var tlItems = tlRoot ? Array.prototype.slice.call(tlRoot.querySelectorAll(".stop, .path")) : [];
+  var tlWide = win.matchMedia("(min-width: 1180px)");
+  var tlLeft = tlItems.length;
+  if (tlRoot) tlRoot.classList.add("is-armed");
+  var tlShow = function (el) {
+    if (el.classList.contains("is-shown")) return;
+    el.classList.add("is-shown");
+    tlLeft--;
+  };
+  var syncTimeline = function (vh) {
+    if (!tlLeft) return;
+    tlItems.forEach(function (el) {
+      if (el.classList.contains("is-shown")) return;
+      if (still) { tlShow(el); return; }
+      var panel = el.closest("[data-approach]");
+      if (!panel || panel.dataset.settled !== "1") return;
+      var r = el.getBoundingClientRect();
+      if (r.top > vh * 0.88 || r.bottom < 0) return;
+      tlShow(el);
+      /* The options ride with their stop when the stops are in a row. */
+      if (tlWide.matches && el.classList.contains("stop-fork")) {
+        el.querySelectorAll(".path").forEach(tlShow);
+      }
+    });
+  };
+
+
   /* ---- The paragraph you are reading ------------------------------------
      Whichever body paragraph sits over the middle of the screen goes chalk;
      the rest sit back in mist. A column of copy then reads a line at a time
@@ -429,6 +466,8 @@
           " rotateX(" + (26 * (1 - q) - 12 * x).toFixed(2) + "deg)";
       }
     });
+
+    syncTimeline(vh);
 
     /* The nebula shifts tint over the journey: green, then teal, then brass. */
     var total = Math.max(1, root.scrollHeight - vh);
@@ -563,7 +602,7 @@
      Draws itself across once the label is on screen, and stays drawn. */
   (function () {
     var rules = Array.prototype.slice.call(
-      doc.querySelectorAll(".prose > .kicker, .pf-head .kicker, .services-grid > header .kicker")
+      doc.querySelectorAll(".prose > .kicker, .pf-head .kicker, .services-grid > header .kicker, .process-grid > header .kicker")
     );
     if (!rules.length) return;
     if (!("IntersectionObserver" in win)) {

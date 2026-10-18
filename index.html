@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300..500&display=swap">
-<link rel="stylesheet" href="styles.css?v=34">
+<link rel="stylesheet" href="styles.css?v=35">
 <script>document.documentElement.className += " js booting";document.documentElement.setAttribute("data-page", /^\/portfolio\/?$/.test(location.pathname) || /[?&]p=portfolio\b/.test(location.search) ? "portfolio" : "home");</script>
 <!-- Structured data. Tells search engines that the site, the person and the
      work are one entity, which is what puts a name in a knowledge panel rather
@@ -440,51 +440,54 @@
   </section>
 
   <section class="sec" id="process">
-    <div class="approach steps-grid services-grid" data-approach>
+    <div class="approach process-grid" data-approach>
       <header>
         <p class="kicker">How it works</p>
         <h2 class="h2">Mockup first</h2>
       </header>
-      <ol class="steps">
-        <li class="service">
+      <ol class="timeline" data-timeline>
+        <li class="stop" style="--i:0">
           <span class="num">01</span>
           <h3>A mockup of your home page</h3>
           <p>I make a mockup of your home page from your own business details, so you can see it on your phone before you decide anything.</p>
         </li>
-        <li class="service">
+        <li class="stop" style="--i:1">
           <span class="num">02</span>
           <h3>I finish it</h3>
           <p>Once we agree, I design and build the rest of the site.</p>
         </li>
-        <li class="service">
+        <li class="stop" style="--i:2">
           <span class="num">03</span>
           <h3>You pay, and it goes live on your own accounts</h3>
           <p>You pay for the site. Together we set up a free GitHub account, where your site files live, and a free Cloudflare account, where it is hosted. You add me to both and I put your site live. It is yours from day one, with no monthly hosting bill.</p>
         </li>
+        <li class="stop stop-fork" style="--i:3">
+          <div class="stop-head">
+            <span class="num">04</span>
+            <h3>Then you pick how to keep it</h3>
+          </div>
+          <div class="paths-grid">
+            <article class="path" style="--k:0">
+              <span class="num">Option one</span>
+              <h4>Let me look after it</h4>
+              <p>For a small monthly fee I stay added to your accounts and keep the site up to date.</p>
+              <ul>
+                <li>You ask for changes whenever you want, through your client login.</li>
+                <li>If you ever stop, you just remove me and nothing moves.</li>
+              </ul>
+            </article>
+            <article class="path" style="--k:1">
+              <span class="num">Option two</span>
+              <h4>Take it from here</h4>
+              <p>You remove me from your accounts and the site is fully in your hands.</p>
+              <ul>
+                <li>You are in charge of changes, by editing the files in your GitHub. Cloudflare runs on its own.</li>
+                <li>You can always come back and ask me for changes when you need them.</li>
+              </ul>
+            </article>
+          </div>
+        </li>
       </ol>
-      <div class="paths">
-        <h3 class="paths-head">Then you pick how to keep it</h3>
-        <div class="paths-grid">
-          <article class="path">
-            <span class="num">Option one</span>
-            <h3>Let me look after it</h3>
-            <p>For a small monthly fee I stay added to your accounts and keep the site up to date.</p>
-            <ul>
-              <li>You ask for changes whenever you want, through your client login.</li>
-              <li>If you ever stop, you just remove me and nothing moves.</li>
-            </ul>
-          </article>
-          <article class="path">
-            <span class="num">Option two</span>
-            <h3>Take it from here</h3>
-            <p>You remove me from your accounts and the site is fully in your hands.</p>
-            <ul>
-              <li>You are in charge of changes, by editing the files in your GitHub. Cloudflare runs on its own.</li>
-              <li>You can always come back and ask me for changes when you need them.</li>
-            </ul>
-          </article>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -869,7 +872,7 @@
 <div class="boot" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<script src="space-scene.js?v=34" defer></script>
-<script src="script.js?v=34" defer></script>
+<script src="space-scene.js?v=35" defer></script>
+<script src="script.js?v=35" defer></script>
 </body>
 </html>
