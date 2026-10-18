@@ -908,7 +908,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 }
 .path .num { font: 500 11px/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); }
 .path h3 { margin: 0; font: 300 34px/1.05 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
-.path p, .path li, .paths-note {
+.path p, .path li {
   font: 300 16px/1.6 var(--sans);
   letter-spacing: -0.005em;
   color: var(--mist);
@@ -918,7 +918,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .path ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
 .path li { position: relative; padding-left: 22px; }
 .path li::before { content: ""; position: absolute; left: 0; top: 0.85em; width: 12px; height: 1px; background: var(--brass); }
-.paths-note { margin: 0; max-width: 62ch; font-size: 17px; }
+
 .included-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .included-note {
   grid-column: 1 / -1;
