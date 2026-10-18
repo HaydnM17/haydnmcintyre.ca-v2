@@ -879,36 +879,38 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 }
 
 /* ---- How it works -------------------------------------------------------
-   A timeline of four stops. On a phone a line runs down the left with the
-   stops to its right. From 1180px the line runs across the page and the
-   stops hang from it. Stop four forks into the two ways to keep the site:
-   a trunk down from its node, and an elbow into each option.
+   Four boxes on a line. On a phone the line runs down the left and the boxes
+   stack to its right. From 1180px the line runs across the page, a node on it
+   above each box, and the four boxes sit in one row so the whole section
+   fits one laptop screen. The last box holds the two ways to keep the site,
+   forking from its title: a bar and two drops on a wide screen, a trunk and
+   two elbows on a phone.
 
    The script adds .is-shown to a stop or an option once its panel has landed
    and it is on screen. Until then, and only with the script running, it sits
    18px low at nothing; the line segment after it draws once it has risen.
    Without the script, or under reduced motion, all of it is simply drawn. */
-.process-grid { display: grid; gap: 56px; }
-.process-grid .h2 { font-size: clamp(48px, 6.2vw, 88px); }
+.process-grid { display: grid; gap: 36px; }
+.process-grid .h2 { font-size: clamp(44px, 4.6vw, 64px); }
+.process-grid > header .kicker { margin-bottom: 16px; }
 
 .timeline {
   --tl: rgba(229, 180, 87, 0.5);   /* the line: brass, thin */
-  --gap: 44px;                     /* between stops */
-  --pgap: 24px;                    /* heading to options, option to option */
+  --gap: 36px;                     /* between stops */
+  --pgap: 16px;                    /* between options */
   margin: 0; padding: 0; list-style: none;
   display: grid; row-gap: var(--gap);
   max-width: 700px;
 }
 .stop {
-  --rail: 40px;                    /* how far the content sits from the line */
-  --nb: 13px;                      /* bottom of the node, from the top of the stop head */
+  --rail: 40px;                    /* how far the box sits from the line */
   --d: 0s; --cd: 0.25s;
   position: relative;
   padding-left: var(--rail);
 }
 .stop::before {                    /* the node */
   content: "";
-  position: absolute; left: 0; top: 2px;
+  position: absolute; left: 0; top: 23px;
   width: 11px; height: 11px; box-sizing: border-box;
   border-radius: 50%;
   border: 1px solid var(--brass);
@@ -916,7 +918,6 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 }
 .stop-fork::before { background: var(--brass); }   /* the one that decides */
 .stop:not(.stop-fork)::after,
-.stop-head::after,
 .path::after {
   content: "";
   position: absolute;
@@ -925,10 +926,23 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   transform-origin: top;
   transition: transform 0.6s linear var(--cd);
 }
-.stop:not(.stop-fork)::after { left: 5px; top: var(--nb); height: calc(100% - 11px + var(--gap)); }
+.stop:not(.stop-fork)::after { left: 5px; top: 34px; height: calc(100% - 11px + var(--gap)); }
+.box {
+  position: relative;
+  padding: 20px 18px 22px;
+  border: 1px solid var(--line);
+  border-top-color: var(--line-int);
+  background: rgba(236, 241, 236, 0.02);
+}
+.box::before {                     /* the tick from the line into the box */
+  content: "";
+  position: absolute; left: calc(11px - var(--rail) - 1px); top: 28px;
+  width: calc(var(--rail) - 11px); height: 1px;
+  background: var(--tl);
+}
 .stop .num { display: block; font: 500 12px/1.4 var(--mono); letter-spacing: 0.1em; color: var(--brass); }
-.stop h3 { text-wrap: balance; margin: 6px 0 0; font: 300 32px/1.05 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
-.stop > p {
+.stop h3 { text-wrap: balance; margin: 6px 0 0; font: 300 30px/1.05 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
+.stop .box > p {
   margin: 12px 0 0; max-width: 52ch;
   font: 300 16px/1.6 var(--sans);
   letter-spacing: -0.005em;
@@ -936,40 +950,33 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   text-wrap: pretty;
 }
 
-.stop-head { position: relative; margin-bottom: var(--pgap); }
-.stop-head::after { left: calc(5px - var(--rail)); top: var(--nb); height: calc(100% - var(--nb)); }
-.paths-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--pgap); }
+.paths-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--pgap); margin-top: 18px; padding-left: 22px; }
 .path {
   --d: 0s; --cd: 0.2s; --ed: 0.65s;
   position: relative;
-  display: grid; gap: 12px; align-content: start;
-  padding: 22px 20px 24px;
+  padding: 14px 14px 16px;
   border: 1px solid var(--line);
-  border-top-color: var(--line-int);
-  background: rgba(236, 241, 236, 0.02);
+  background: rgba(236, 241, 236, 0.03);
 }
 .path::before {                    /* the elbow into the option */
   content: "";
-  position: absolute; left: calc(5px - var(--rail)); top: 30px;
-  width: calc(var(--rail) - 5px); height: 1px;
+  position: absolute; left: -17px; top: 24px;
+  width: 17px; height: 1px;
   background: var(--tl);
   transform-origin: left;
   transition: transform 0.35s linear var(--ed);
 }
-.path::after { left: calc(5px - var(--rail)); top: calc(-1 * var(--pgap)); height: calc(100% + var(--pgap)); }
-.path:last-child::after { height: calc(var(--pgap) + 30px); }   /* the trunk stops at the last elbow */
-.path .num { font-size: 11px; text-transform: uppercase; }
-.path h4 { margin: 0; font: 300 30px/1.05 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
-.path p, .path li {
-  font: 300 16px/1.6 var(--sans);
+.path::after { left: -17px; top: calc(-1 * var(--pgap)); height: calc(100% + var(--pgap)); }
+.path:first-child::after { top: -18px; height: calc(100% + 18px); }   /* starts under the title */
+.path:last-child::after { height: calc(var(--pgap) + 24px); }          /* the trunk stops at the last elbow */
+.path h4 { margin: 0; font: 300 24px/1.1 var(--display); letter-spacing: -0.02em; color: var(--chalk); }
+.path p {
+  margin: 8px 0 0;
+  font: 300 15px/1.55 var(--sans);
   letter-spacing: -0.005em;
   color: var(--mist);
   text-wrap: pretty;
 }
-.path p { margin: 4px 0 0; }
-.path ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
-.path li { position: relative; padding-left: 22px; }
-.path li::before { content: ""; position: absolute; left: 0; top: 0.85em; width: 12px; height: 1px; background: var(--brass); }
 
 /* Rising in. Transform and opacity only, and a landed item carries no
    transform at all, so nothing is left composited afterwards. */
@@ -979,41 +986,59 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .timeline.is-armed .stop:not(.is-shown),
 .timeline.is-armed .path:not(.is-shown) { opacity: 0; transform: translateY(18px); }
 .timeline.is-armed .stop:not(.stop-fork):not(.is-shown)::after,
-.timeline.is-armed .stop-fork:not(.is-shown) .stop-head::after,
 .timeline.is-armed .path:not(.is-shown)::after { transform: scaleY(0); }
 .timeline.is-armed .path:not(.is-shown)::before { transform: scaleX(0); }
 
-/* Across the page. Four columns need about 1180px; below that the line
+/* Across the page. Four boxes in a row need about 1180px; below that the line
    stays vertical, which is also what a phone gets. */
 @media (min-width: 1180px) {
   .timeline {
-    --gap: 40px;
+    --gap: 28px;
     max-width: none;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 2fr);
     column-gap: var(--gap); row-gap: 0;
-    align-items: start;
+    align-items: stretch;
   }
-  .stop { --rail: 0px; --nb: -15px; padding-top: 26px; --d: calc(var(--i) * 0.75s); --cd: calc(var(--i) * 0.75s + 0.3s); }
-  .stop-fork { --rail: 30px; }
+  .stop {
+    --rail: 0px;
+    display: flex; flex-direction: column;
+    padding: 28px 0 0;
+    --d: calc(var(--i) * 0.75s); --cd: calc(var(--i) * 0.75s + 0.3s);
+  }
+  .stop::before { top: 0; }
   .stop:not(.stop-fork)::after { left: 11px; top: 5px; width: calc(100% + var(--gap) - 11px); height: 1px; transform-origin: left; }
   .timeline.is-armed .stop:not(.stop-fork):not(.is-shown)::after { transform: scaleX(0); }
+  .box { flex: 1; padding: 18px 18px 20px; }
+  .box::before { left: 5px; top: -23px; width: 1px; height: 22px; }   /* node down into the box */
   .stop h3 { font-size: 28px; }
-  .stop > p { font-size: 15px; max-width: 34ch; }
-  .path { --d: calc(3.1s + var(--k) * 0.4s); --cd: calc(3.2s + var(--k) * 0.4s); --ed: calc(3.65s + var(--k) * 0.4s); }
-  .path h4 { font-size: 28px; }
-  .path p, .path li { font-size: 15px; }
+  .stop .box > p { font-size: 16px; }
+
+  .paths-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px; padding: 28px 0 0; margin-top: 0;
+    position: relative;
+  }
+  .paths-grid::before {            /* stem from the title down to the bar */
+    content: "";
+    position: absolute; left: 50%; top: 4px; height: 10px; width: 1px;
+    background: var(--tl);
+  }
+  .path { --d: calc(3.1s + var(--k) * 0.4s); --cd: calc(3.2s + var(--k) * 0.4s); --ed: calc(3.2s + var(--k) * 0.4s); }
+  .path::before {                  /* the drop from the bar into the option */
+    left: 50%; top: -14px; width: 1px; height: 14px; transform-origin: top;
+    transition: transform 0.3s linear var(--ed);
+  }
+  .path::after, .path:first-child::after, .path:last-child::after {   /* half the bar, from the middle out to this option */
+    top: -14px; height: 1px; left: 50%; width: calc(50% + 7px);
+    transform-origin: right;
+  }
+  .path:last-child::after { left: auto; right: 50%; transform-origin: left; }
+  .timeline.is-armed .path:not(.is-shown)::before { transform: scaleY(0); }
+  .timeline.is-armed .path:not(.is-shown)::after { transform: scaleX(0); }
+  .path h4 { font-size: 22px; }
+  .path p { font-size: 14px; }
 }
 
-.included-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.included-note {
-  grid-column: 1 / -1;
-  margin: 8px 0 0;
-  max-width: 56ch;
-  font: 300 18px/1.7 var(--sans);
-  letter-spacing: -0.005em;
-  color: var(--mist);
-  text-wrap: pretty;
-}
 .service .text-link { color: var(--brass); border-color: var(--brass-dim); }
 .service .text-link:hover, .service .text-link:focus-visible { color: var(--chalk); border-color: var(--chalk); }
 
@@ -1342,7 +1367,6 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 @media (prefers-reduced-motion: reduce) {
   .timeline.is-armed .stop:not(.is-shown), .timeline.is-armed .path:not(.is-shown) { opacity: 1; transform: none; }
   .timeline.is-armed .stop:not(.stop-fork):not(.is-shown)::after,
-  .timeline.is-armed .stop-fork:not(.is-shown) .stop-head::after,
   .timeline.is-armed .path:not(.is-shown)::after,
   .timeline.is-armed .path:not(.is-shown)::before { transform: none !important; }
 }
