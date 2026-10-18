@@ -19,8 +19,8 @@
   var isFile = location.protocol === "file:";
 
   /* ---- Email, assembled at runtime so it is not sitting in the markup ---- */
-  var mailUser = ["haydn", "mcintyre"].join("");
-  var mailHost = ["yahoo", "ca"].join(".");
+  var mailUser = "contact";
+  var mailHost = ["haydnmcintyre", "ca"].join(".");
   var EMAIL = mailUser + "@" + mailHost;
   doc.querySelectorAll("[data-mail]").forEach(function (el) {
     el.setAttribute("href", "mailto:" + EMAIL);
