@@ -892,7 +892,6 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
    Without the script, or under reduced motion, all of it is simply drawn. */
 .process-grid { display: grid; gap: 36px; }
 .process-grid .h2 { font-size: clamp(44px, 4.6vw, 64px); }
-.process-grid > header .kicker { margin-bottom: 16px; }
 
 .timeline {
   --tl: rgba(229, 180, 87, 0.5);   /* the line: brass, thin */
@@ -978,6 +977,16 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   text-wrap: pretty;
 }
 
+/* One quiet line under the timeline. */
+.process-note { margin: 0; max-width: 78ch; font: 300 14px/1.55 var(--sans); letter-spacing: -0.005em; color: var(--mist); opacity: 0.8; text-wrap: pretty; }
+
+/* The two accounts in the handoff box: a small logo in the text colour. */
+.accts { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.accts li { display: flex; align-items: flex-start; gap: 10px; }
+.accts svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--brass); }
+.accts span { font: 300 15px/1.5 var(--sans); letter-spacing: -0.005em; color: var(--chalk); text-wrap: pretty; }
+.stop .box > .accts + p { margin-top: 12px; }
+
 /* Rising in. Transform and opacity only, and a landed item carries no
    transform at all, so nothing is left composited afterwards. */
 .stop, .path {
@@ -995,7 +1004,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
   .timeline {
     --gap: 28px;
     max-width: none;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 2fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 2.1fr);
     column-gap: var(--gap); row-gap: 0;
     align-items: stretch;
   }
