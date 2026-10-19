@@ -631,6 +631,7 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
 .hero-ctas .btn:nth-child(2) { animation-delay: 1.04s; }
 .hero-ctas .btn:nth-child(3) { animation-delay: 1.12s; }
 .hero-ctas .btn:nth-child(4) { animation-delay: 1.2s; }
+.hero-ctas .btn:nth-child(5) { animation-delay: 1.28s; }
 .hero-ann {
   position: absolute; left: 44px; right: 44px; bottom: 36px;
   display: flex; justify-content: space-between; align-items: center;
@@ -1441,6 +1442,14 @@ main[data-page="portfolio"] #websites { padding-top: 34vh; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: min(100%, 340px);
     margin-inline: auto;
+  }
+  /* An odd button out, now Contact after the fifth link went in, takes the
+     middle of its own row at the width of the others, instead of hanging
+     under the left column as though one were missing. */
+  .hero-ctas > .btn:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 5px);
   }
   .btn-row:has(> .btn + .btn) > .btn { flex: 1 1 auto; }
 }
