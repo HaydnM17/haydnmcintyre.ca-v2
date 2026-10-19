@@ -5,6 +5,8 @@
 # The v1 site used a real portfolio.html. Keep old links and resumes working.
 /portfolio.html   /portfolio    301
 /portfolio/       /portfolio    301
+# Any one-segment path with a trailing slash drops it, so a short link like /glamour-nails/ still works.
+/:slug/           /:slug        301
 
 # Mockup short links, one per line, added by the CRM watcher. Keep the rules above first.
 /glamour-nails https://haydnm17.github.io/glamour-nails/ 302
