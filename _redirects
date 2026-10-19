@@ -5,6 +5,8 @@
 # The v1 site used a real portfolio.html. Keep old links and resumes working.
 /portfolio.html   /portfolio    301
 /portfolio/       /portfolio    301
+# Printed on Haydn's business card.
+/how-it-works      /#process     302
 # Any one-segment path with a trailing slash drops it, so a short link like /glamour-nails/ still works.
 /:slug/           /:slug        301
 
