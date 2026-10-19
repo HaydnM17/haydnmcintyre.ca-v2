@@ -5,3 +5,10 @@
 # The v1 site used a real portfolio.html. Keep old links and resumes working.
 /portfolio.html   /portfolio    301
 /portfolio/       /portfolio    301
+
+# Mockup short links, one per line, added by the CRM watcher. Keep the rules above first.
+/glamour-nails https://haydnm17.github.io/glamour-nails/ 302
+/bff-groomer https://haydnm17.github.io/bff-groomer/ 302
+/brick-beam https://haydnm17.github.io/brick-beam/ 302
+/roberts-renovations https://haydnm17.github.io/roberts-renovations/ 302
+/the-healing-bench https://haydnm17.github.io/the-healing-bench/ 302
